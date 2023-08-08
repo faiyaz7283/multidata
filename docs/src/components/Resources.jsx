@@ -3,13 +3,11 @@ import { motion, useMotionTemplate, useMotionValue } from 'framer-motion'
 
 import { GridPattern } from '@/components/GridPattern'
 import { Heading } from '@/components/Heading'
-import { BoltIcon } from '@/components/icons/BoltIcon'
-import { DocumentIcon } from '@/components/icons/DocumentIcon'
-import { CogIcon } from '@/components/icons/CogIcon'
 import { CopyIcon } from '@/components/icons/CopyIcon'
-import { FolderIcon } from '@/components/icons/FolderIcon'
-import { CalendarIcon } from './icons/CalendarIcon'
-import { PaperClipIcon } from './icons/PaperClipIcon'
+import { ListIcon } from './icons/ListIcon'
+import { LinkIcon } from './icons/LinkIcon'
+import { ShapesIcon } from './icons/ShapesIcon'
+import { MagnifyingGlassIcon } from './icons/MagnifyingGlassIcon'
 
 const resources = [
   {
@@ -17,42 +15,42 @@ const resources = [
     name: 'Data2d',
     description:
       "Data2d data structure.",
-    icon: FolderIcon,
+    icon: ListIcon,
   },
   {
     href: '/_data3d',
     name: 'Data3d',
     description:
       "Data3d data structure.",
-    icon: FolderIcon,
+    icon: ListIcon,
   },
   {
     href: '/create-keys-values',
     name: 'Create Keys & Values',
     description:
-      "Core of Keys and Value.",
-    icon: FolderIcon,
+      "Building blocks.",
+    icon: CopyIcon,
   },
   {
     href: '/fetch-keys-values',
     name: 'Fetch Keys & Values',
     description:
-      "Fetch Keys and Value.",
-    icon: FolderIcon,
+      "Methods for keys and values.",
+    icon: MagnifyingGlassIcon,
   },
   {
     href: '/extended',
     name: 'Extended Array Functions',
     description:
       "Extended array functions.",
-    icon: FolderIcon,
+    icon: LinkIcon,
   },
   {
     href: '/comparison',
     name: 'Comparison',
     description:
       "Comparison methods.",
-    icon: FolderIcon,
+    icon: ShapesIcon,
   },
 ]
 
