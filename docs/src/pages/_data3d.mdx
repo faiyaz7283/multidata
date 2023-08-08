@@ -1,0 +1,88 @@
+export const description =
+  'On this page, we\'ll look at the make up of data3d object and data3d helper function.'
+
+# Data3d
+
+<Note>Please DO NOT manually create this object. Instead, use the [`data3d()`](/_data3d#data3d) function to create data3d objects.</Note>
+
+A three dimensional array of primarykey-datakey-value data structure. The data3d object has the following properties:
+
+### Properties
+<Properties>
+  <Property name="data" type="array<data2d>">
+    An array of `data2d` objects.
+  </Property>
+  <Property name="primaryKeys" type="array<string>">
+    An array of primary key identifiers. _Optional. The default is na_.
+  </Property>
+  <Property name="dataKeys" type="array<string>">
+    An array of data key identifiers. _Optional. The default is na_.
+  </Property>
+  <Property name="dataTypes" type="array<string>">
+    An array of data types for each data keys. _Optional. The default is na_.
+  </Property>
+  <Property name="dataType" type="string">
+    The data type representing all data keys. Possible values are string, float, int, bool, color, timestamp, or mix. _Optional. The default is na_.
+  </Property>
+  <Property name="size" type="int">
+    Total size of the data3d object. _Optional. The default is na_.
+  </Property>
+  <Property name="sorted" type="bool">
+    A boolean flag to determine if the data3d object is sorted or not. _Optional. The default is na_.
+  </Property>
+  <Property name="sortByKey" type="string">
+    The data key used for sorting the data3d object. _Optional. The default is na_.
+  </Property>
+  <Property name="asc" type="bool">
+     A boolean flag to determine if sorting is in ascending or descending order. Use 'true' for ascending and 'false' for descending. _Optional. The default is true_.
+  </Property>
+  <Property name="change" type="bool">
+     A boolean flag to determine if sorting uses change percent values. Use 'true' for sorting using change percent value. _Optional. The default is false_.
+  </Property>
+  <Property name="format" type="string">
+    A default string format for values. _Optional. The default is na_.
+  </Property>
+  <Property name="formatTime" type="string">
+    A default time format for timestamp values. _Optional. The default is 'yyyy-MM-dd hh:mm:ss a z'_.
+  </Property>
+  <Property name="index" type="array<int>">
+    An array of integer values representing primary key index. If the object is sorted, the index will be in sorted order. _Optional. The default is na_.
+  </Property>
+  <Property name="timezone" type="string">
+    A default timezone value for the data3d object. _Optional. The default is 'syminfo.timezone'_.
+  </Property>
+</Properties>
+
+---
+
+## data3d()
+
+The data3d() function is the recommended way to create [`data3d`](/_data3d) objects. This function ensures that all keys are unique and performs essential internal 
+functions to create the [`data3d`](/_data3d) object efficiently.
+
+<Properties>
+  <Property name="pkvs" type="array<pkv>">
+    An array of pkv objects.
+  </Property>
+  <Property name="sort" type="bool">
+    Use true for sorting, false otherwise. _Optional. The default is false_.
+  </Property>
+  <Property name="sortByKey" type="string">
+    The data key used for sorting. _Optional. The default is na_.
+  </Property>
+  <Property name="asc" type="bool">
+     Use true for sort order.ascending, false for sort order.descending. _Optional. The default is true_.
+  </Property>
+  <Property name="change" type="bool">
+     Sorts using change percent if true. _Optional. The default is false_.
+  </Property>
+  <Property name="format" type="string">
+    A default format. _Optional. The default is na_.
+  </Property>
+  <Property name="timezone" type="string">
+    A default timezone. _Optional. The default is 'syminfo.timezone'_.
+  </Property>
+  <Property name="returns" type="data3d">
+    A data3d object.
+  </Property>
+</Properties>

@@ -1,0 +1,617 @@
+export const description =
+  'In this guide, we’ll look at how to get started with data3d data structure.'
+
+# Data3d
+
+The [`data3d`](/_data3d) data structure is an extension of the [`data2d`](/_data2d) object, designed to enable users to store multiple 
+[`data2d`](/_data2d) objects, each identified by a unique primary key. This powerful data management tool allows for grouping key-value 
+pairs based on primary keys, providing advanced data organization and analysis capabilities within *Pine Script's* indicators, strategies, 
+and libraries.
+
+## Structure 
+
+To facilitate the storage of multiple data types of key-value pairs grouped by primary keys, [`data3d`](/_data3d) relies on another object 
+called [`pkv`](/create-keys-values#pkv) *(primary key with key-value pairs)*. The [`pkv`](/create-keys-values#pkv) object serves as a container for a single 
+primary key along with its corresponding *array* of key-value pairs. By using these [`pkv`](/create-keys-values#pkv) objects within an *array* and 
+pushing them onto a [`data3d`](/_data3d) object, we create a robust system for unique primary and data key-value storage.
+
+## Key Features
+
+Just like the [`data2d`](/_data2d) data structure, [`data3d`](/_data3d) offers similar powerful features plus more.
+
+- **Primary Keys:** The primary key feature allows [`data3d`](/_data3d) to store and uniquely identify groups of key-value pairs. With this 
+capability, [`data3d`](/_data3d) enables multi-layered data storage, making it versatile for handling complex data structures.
+- **Storing Alternate Values:** Similar to [`data2d`](/_data2d) objects, each primary key-value pair in [`data3d`](/_data3d) can store an 
+alternate value, with all the same features and functionalities.
+- **Storing Unix Timestamp:** Similar to the [`data2d`](/_data2d) objects, [`data3d`](/_data3d) provides the same advantages for handling 
+*Unix timestamp* values. *Timestamps* are stored as a dedicated data type within [`data3d`](/_data3d), ensuring seamless operations for storage, 
+retrieval, and display. Furthermore, you can make use of the built-in comparison methods when dealing with alternate values, just as you would 
+with [`data2d`](/_data2d) objects.
+- **Comparison With Alternate:** Similar to [`data2d`](/_data2d), [`data3d`](/_data3d) also offers the capability to perform comparison 
+operations within its values. You can easily compare main values with their corresponding alternate values, enabling you to analyze and 
+understand the variations and changes within the data3d structure.
+- **Automatic Formatting:**  Just like [`data2d`](/_data2d) objects, [`data3d`](/_data3d) also supports automatic formatting of values. 
+When a formatting option is available, [`data3d`](/_data3d) automatically formats and stores the formatted version of each data entry. 
+This is particularly useful when dealing with complex data types like timestamps.
+- **Sorting Capability:** [`Data3d`](/_data3d) introduces sorting based on data keys and their values. By sorting the [`data3d`](/_data3d) 
+object using a specific data key, the primary keys are reordered based on the sort order of the data key values. This enables efficient 
+data analysis and organization.
+- **Extended Array Functions:** Similar to [`data2d`](/_data2d), [`data3d`](/_data3d) extends some of the built-in 
+*array* functions. These array functions provide convenient ways to 
+manipulate the [`Data3d`](/_data3d) object and its contents.
+
+perform multiple comparison operations to compare main values with their corresponding alternate values. Additionally, you can effortlessly 
+obtain the change difference and change percentage between the main and alternate values.
+
+## Setup PKV
+
+To construct a single primary key along with its group of key-value pairs, the recommended approach is to use the [`pkv()`](/create-keys-values#pkv) method. 
+This method accepts the following two parameters:
+
+- **this:** A string object, used as the *primary key* identifier. 
+- **kvs:** An *array* of [`kv`](/create-keys-values#kv) objects, where each [`kv`](/create-keys-values#kv)  object contains identical data keys paired with values that belong to 
+the same data type for each key.
+
+<Note>
+  Please refer to the [`"Setup keys and values"`](/data2d#setup-keys-and-values) section on the data2d-guide page for more detailed examples 
+  and options on setting up the array of [`kv`](/create-keys-values#kv) objects. The same options and methods can be applied when constructing data3d objects.
+</Note>
+
+In the example below, we will store *OHLC (open, high, low, close)* data for four companies - *AAPL, AMZN, MSFT, NVDA,* and *TSLA*. Each 
+company name will serve as a primary key, and the data keys will be *open, high, low,* and *close*. The original data will consist of the 
+current *OHLC* values, while the alternate data will store the *OHLC* values of the previous candles.
+
+Let's begin by constructing the data using a simple and lengthy approach. Afterwards, we will explore how to refactor and streamline this data 
+creation process for better efficiency.
+
+```js {{ title: 'Building data for data3d the long way' }}
+// Create pkv object for 'AAPL' primary key.
+aapl = pkv('AAPL', array.from(
+  'open'.kv(request.security('AAPL', '', open)).alt(request.security('AAPL', '', open[1])),
+  'high'.kv(request.security('AAPL', '', high)).alt(request.security('AAPL', '', high[1])),
+  'low'.kv(request.security('AAPL', '', low)).alt(request.security('AAPL', '', low[1])),
+  'close'.kv(request.security('AAPL', '', close)).alt(request.security('AAPL', '', close[1]))))
+
+// Create pkv object for 'AMZN' primary key.
+amzn = pkv('AMZN', array.from(
+  'open'.kv(request.security('AMZN', '', open)).alt(request.security('AMZN', '', open[1])),
+  'high'.kv(request.security('AMZN', '', high)).alt(request.security('AMZN', '', high[1])),
+  'low'.kv(request.security('AMZN', '', low)).alt(request.security('AMZN', '', low[1])),
+  'close'.kv(request.security('AMZN', '', close)).alt(request.security('AMZN', '', close[1]))))
+
+// Create pkv object for 'MSFT' primary key.
+msft = pkv('MSFT', array.from(
+  'open'.kv(request.security('MSFT', '', open)).alt(request.security('MSFT', '', open[1])),
+  'high'.kv(request.security('MSFT', '', high)).alt(request.security('MSFT', '', high[1])),
+  'low'.kv(request.security('MSFT', '', low)).alt(request.security('MSFT', '', low[1])),
+  'close'.kv(request.security('MSFT', '', close)).alt(request.security('MSFT', '', close[1]))))
+
+// Create pkv object for 'NVDA' primary key.
+nvda = pkv('NVDA', array.from(
+  'open'.kv(request.security('NVDA', '', open)).alt(request.security('NVDA', '', open[1])),
+  'high'.kv(request.security('NVDA', '', high)).alt(request.security('NVDA', '', high[1])),
+  'low'.kv(request.security('NVDA', '', low)).alt(request.security('NVDA', '', low[1])),
+  'close'.kv(request.security('NVDA', '', close)).alt(request.security('NVDA', '', close[1]))))
+
+// Create pkv object for 'TSLA' primary key.
+tsla = pkv('TSLA', array.from(
+  'open'.kv(request.security('TSLA', '', open)).alt(request.security('TSLA', '', open[1])),
+  'high'.kv(request.security('TSLA', '', high)).alt(request.security('TSLA', '', high[1])),
+  'low'.kv(request.security('TSLA', '', low)).alt(request.security('TSLA', '', low[1])),
+  'close'.kv(request.security('TSLA', '', close)).alt(request.security('TSLA', '', close[1]))))
+```
+
+The above data creation process can quickly become bulky and hard to read. Moreover, it rapidly exhausts the maximum allowed calls for the 
+request security function, resulting in inefficiency. To address this problem, we can refactor the process by creating a helper function that 
+generates each [`pkv`](/create-keys-values#pkv) object using only one request. This approach simplifies and cleans up the code while minimizing the number of request 
+calls required.
+
+```js {{ title: 'Building data for data3d the proper way' }}
+// Create a helper function and return an array of kv objects.
+getOHLC(string ticker) =>
+    m = array.from(open, high, low, close)
+    a = array.from(open[1], high[1], low[1], close[1])
+    [main, alt] = request.security(ticker, '', [m, a])
+    kvs = array.new<kv>()
+    for [idx, dk] in array.from('open', 'high', 'low', 'close')
+        kvs.push(dk.kv(main.get(idx)).alt(alt.get(idx)))
+    kvs
+
+// Now we can simply assign data using the above function.
+// NOTE: Collecting dynamic data should be performed inside a conditional barstate.
+if barstate.islast
+    aapl  = pkv('AAPL', getOHLC('AAPL'))
+    tsla  = pkv('TSLA', getOHLC('TSLA'))
+    amzn  = pkv('AMZN', getOHLC('AMZN'))
+    nvda  = pkv('NVDA', getOHLC('NVDA'))
+    msft  = pkv('MSFT', getOHLC('MSFT'))
+```
+By using the helper function, we can efficiently collect and organize data into [`pkv`](/create-keys-values#pkv) objects, significantly improving the overall 
+performance and maintainability of the code. This approach optimizes data handling and helps prevent potential security function call limitations, 
+resulting in a more streamlined and efficient data collection process.
+
+Once you have your [`pkv`](/create-keys-values#pkv) objects created, store them in an *array*. We will use this *array* on later examples when we initiate 
+our [`data3d`](/_data3d) object.
+
+```js {{ title: 'Store pkv objects in array' }}
+_pkvs_ = array.from(aapl, tsla, amzn, nvda, msft)
+```
+
+## Exploring Data Types
+
+Just like the [`data2d`](/_data2d) data structure, [`data3d`](/_data3d) supports the same data types. The supported data 
+types are as follows:
+
+1. **string:** Represents string values.
+2. **float:** Represents floating-point numbers (decimals).
+3. **int:** Represents integers (whole numbers).
+4. **bool:** Represents boolean values (true or false).
+5. **color:** Represents color values.
+6. **timestamp:** Represents Unix-timestamp in milliseconds. Although *timestamps* are internally built using the *int* data 
+type, [`data3d`](/_data3d) creates a clear distinction between *integers* and *timestamps*.
+
+For a more detailed understanding of how each of the different data types is used in the [`data3d`](/_data3d) object, you can check out the 
+[`Exploring Data Types`](/data2d#exploring-data-types) section on the *data2d-guide* page. You will find comprehensive examples and explanations. 
+The same concepts apply when using these data types with the [`data3d`](/_data3d) object.
+
+## Create Data3d Object
+
+To instantiate a [`data3d`](/_data3d) object, you will need to pass an *array* 
+of [`pkv`](/create-keys-values#pkv) objects to the recommended [`data3d()`](#) function. This function ensures that all primary and data keys are unique and 
+performs essential internal functions to create the [`data3d`](/_data3d) object efficiently. The [`data3d()`](#) function accepts five parameters:
+
+- **pkvs:** An *array* of [`pkv`](/create-keys-values#pkv) objects containing primary key with its key-value pairs.
+- **sort:** An optional *boolean* flag that indicates whether the [`data3d`](/_data3d) 
+object should be sorted. If set to true, the data will be sorted; otherwise, it will retain its original order.
+- **sortByKey:** Optional, but required when sort is true. This parameter specifies the data key that will be used as a reference for sorting the data.
+- **asc:** An optional *boolean* flag that specifies the sorting order. When set to true, 
+the data will be sorted in ascending order; when set to false, it will be sorted in descending order. This parameter is effective only when sort 
+is set to true.
+- **change:** An optional *boolean* flag used in the context of sorting within the [`data3d`](/_data3d) object. When set to 
+true, it indicates that the sorting should be based on the change percentage values. These change percentage values are calculated from the main and alternate values 
+of the specified data key. It's important to note that this functionality only works when alternate values are available for the data key being considered.
+- **format:** An optional parameter that sets the global format for the entire [`data3d`](/_data3d) object. This format will be applied to all the values within the object. Individual keys with custom format will be ignored.
+- **timezone:** An optional parameter that specifies the timezone used for any 
+*timestamp* related data within the [`data3d`](/_data3d) object. By default, 
+it uses the chart's timezone.
+
+Let's explore some examples and variations of creating a [`data3d`](/_data3d) object using the recommended [`data3d()`](#) method:
+
+<Note>
+    The following example utilizes the *\_pkvs\_* variable, which represents an array of [`pkv`](#) objects that we previously created in the examples above.
+</Note>
+
+```js {{ title: 'Creating data3d object' }}
+d3d = data3d(
+  pkvs = _pkvs_, // ................ Required. An array of pkv objects.
+  sort = true, // .................. Optional. Sort the data3d object.
+  sortByKey = 'close', // .......... Optional. Sort using this data key 'close'.
+  asc = false, // .................. Optional. False implies descending order.
+  change = true, // ................ Optional. True implies sorting based on change percentages.
+  format = '{0,number,currency}', // Optional. Use this format as default fallback.
+  timezone = 'GMT+2') // ........... Optional. Use this timezone as default fallback.
+```
+
+## Extended Array Functions
+
+The [`data3d`](/_data3d) object provides several custom methods that mimic some behaviors of built-in 
+*array* functions in *Pine Script*. Although it's not possible to directly extend all *Pine Script's* 
+*array* functions to the [`data3d`](/_data3d) object due to its complex 
+data structure, these custom methods offer similar functionalities and enhance the manipulation of data within the object.
+
+- [`set()`](/extended#set): This method allows you to modify an existing value identified by a primary and data key in the [`data3d`](/_data3d) object. When 
+using this method, the data type of the new value must match the data type of the original value associated with the specified data key. 
+Re-sorting of data will be triggered if the data key is used for sorting.
+- [`pkIncludes()`](/extended#pk-includes): Use this method to search for a specific value within the [`data3d`](/_data3d) object. This method returns a 
+*boolean* value indicating whether the searching value is present within the values identified with a primary key.
+- [`dkIncludes()`](/extended#dk-includes): Use this method to search for a specific value within the [`data3d`](/_data3d) object. This method returns a 
+*boolean* value indicating whether the searching value is present within the values identified with a data key.
+- [`pkPush()`](/extended#pk-push): This method is used to insert a new primary key and its corresponding key-value pairs at the end of the [`data3d`](/_data3d) object.
+Currently, you can only push new primary key and key-value pairs. Re-sorting of data will be triggered if data is sorted.
+- [`pkRemove()`](/extended#pk-remove): Use this method to remove a primary key and its associated key-value pairs from the [`data3d`](/_data3d) object.
+Currently, you can only remove  primary key and key-value pairs. Re-sorting of data will be 
+triggered if data is sorted.
+- [`sort()`](/extended#sort): Use this method to sort the [`data3d`](/_data3d) object.
+- [`format()`](/extended#format): Use this method to set default format for the [`data3d`](/_data3d) object.
+
+<Note>
+  All the remaining examples below will utilize the *d3d* variable, which represents a [`data3d`](/_data3d) object that we previously created in 
+  the example above.
+</Note> 
+
+<CodeGroup title="Extended functions">
+
+```js {{ title: 'Set' }}
+// Modify main value for the given primary and data key.
+d3d.set(primaryKey = 'AAPL', dataKey = 'open', value = 185.09)
+
+// Modify alternate value for the given primary and data key.
+d3d.set(primaryKey = 'AAPL', dataKey = 'open', value = 185.09, alt = true)
+```
+
+```js {{ title: 'Includes' }}
+// .......................................... Check primary key values:
+d3d.pkIncludes('AAPL', 123.45) // ........... returns true if value found, false otherwise.
+d3d.pkIncludes('AAPL', 123.45, alt = true) // returns true if value found, false otherwise.
+
+// ........................................... Check data key values:
+d3d.dkIncludes('close', 123.45) // ........... returns true if value found, false otherwise.
+d3d.dkIncludes('close', 123.45, alt = true) // returns true if value found, false otherwise.
+```
+
+```js {{ title: 'Push' }}
+googl = pkv( // .......... First create a new pkv object:
+  primaryKey = 'GOOGL', // New unique primary key. 
+  getOHLC('GOOGL')) // ... Function to build the pkv object.
+                        // getOHLC() is a helper function we created in a previous example.
+
+d3d.pkPush(pkv = googl) // Insert the new pkv object into the data3d object.
+```
+
+```js {{ title: 'Remove' }}
+d3d.pkRemove('GOOGL') // Remove the primary key 'GOOGL' and all its key-value pairs.
+```
+
+```js {{ title: 'Sort' }}
+// Sorts in ascending order, using main values of the specified data key.
+d3d.sort(dataKey = 'close') 
+
+// Sorts in descending order, using change percent values of the specified data key.
+d3d.sort(dataKey = 'close', asc = false, change = true) 
+```
+
+```js {{ title: 'Format' }}
+kv.format(format = 'kv: {0}', timezone = 'GMT+2') // Set a custom format for a kv object.
+d2d.format('{0,number,#.#}') // ................. Set default format for a data2d object.
+d2d.format('yyyy-MM-dd') // ......... Set a time format. Applies to all timestamp values.
+```
+
+</CodeGroup>
+
+## Fetch Primary And Data Keys
+
+To obtain all the primary and data keys stored within the [`data3d`](/_data3d) object, you can use the [`primaryKeys()`](#) and the [`dataKeys()`](#) methods. 
+These methods return a *string-array* containing all the asscociated keys. The [`primaryKeys()`](#) preserves the sort order if the [`data3d`](/_data3d) 
+object is sorted. 
+
+<CodeGroup title="Fetch keys">
+
+```js {{ title: 'Primary keys' }}
+d3d.primaryKeys() // returns a string array of all primary keys, sorted if applicable.
+```
+
+```js {{ title: 'Data keys.' }}
+d3d.dataKeys() // returns a string array of all data keys.
+```
+
+</CodeGroup>
+
+## Fetch Values
+
+To retrieve the values from a [`data3d`](/_data3d) object, there are multiple methods available depending on your specific needs. If you only intend to display 
+the data, you can use the [`pkValues()`](#) or the [`dkValues()`](#) methods, which converts all the associated values into *strings*, formats them if 
+applicable and returns them as a *string-array*.
+
+However, if you require the original data type of the values, you should use the corresponding data type methods 
+available for [`data3d`](/_datad). The available data type methods are as follows:
+
+- Values associated with primary keys:
+  - [`pkStringValues()`](#): Returns a *string-array* of all primary key's main values.
+  - [`pkFloatValues()`](#): Returns a *float-array* of all primary key's main values.
+  - [`pkIntValues()`](#): Returns an *integer-array* of all primary key's main values.
+  - [`pkBoolValues()`](#): Returns a *boolean-array* of all primary key's main values.
+  - [`pkColorValues()`](#): Returns a *color-array* of all primary key's main values.
+  - [`pkTimestampValues()`](#): Returns an *integer-array* of all primary key's main *timestamp* values.
+- Values associated with data keys:
+  - [`dkStringValues()`](#): Returns a *string-array* of all data key's main values.
+  - [`dkFloatValues()`](#): Returns a *float-array* of all data key's main values.
+  - [`dkIntValues()`](#): Returns an *integer-array* of all data key's main values.
+  - [`dkBoolValues()`](#): Returns a *boolean-array* of all data key's main values.
+  - [`dkColorValues()`](#): Returns a *color-array* of all data key's main values.
+  - [`dkTimestampValues()`](#): Returns an *integer-array* of all data key's main *timestamp* values.
+
+Please note that if the [`data3d`](/_data3d) object stores multiple types of data, calling any of these data type methods will only 
+return values that match the specified data type, and *na* for the remaining types. All data key methods maintain the sort order 
+if the object is sorted. Sorting does not apply to primary key values.
+
+<CodeGroup title="Get values">
+
+```js {{ title: 'Primary keys' }}
+// ...................................... For display purpose: (uses formatting if applicable)
+d3d.pkValues(primaryKey = 'AAPL') // .................... Returns string-array of main values.
+d3d.pkValues(primaryKey = 'AAPL', alt = true) // ........ Returns string-array of alt values.
+
+// ...................................................... String:
+d3d.pkStringValues(primaryKey = 'AAPL') // .............. Returns string-array of main values.
+d3d.pkStringValues(primaryKey = 'AAPL', alt = true) // .. Returns string-array of alt values.
+
+// ...................................................... Float:
+d3d.pkFloatValues(primaryKey = 'AAPL') // ............... Returns float-array of main values.
+d3d.pkFloatValues(primaryKey = 'AAPL', alt = true) // ... Returns float-array of alt values.
+
+
+// ...................................................... Integer:
+d3d.pkIntValues(primaryKey = 'AAPL') // ................. Returns int-array of main values.
+d3d.pkIntValues(primaryKey = 'AAPL', alt = true) // ..... Returns int-array of alt values.
+
+// ...................................................... Boolean:
+d3d.pkBoolValues(primaryKey = 'AAPL') // ................ Returns bool-array of main values.
+d3d.pkBoolValues(primaryKey = 'AAPL', alt = true) // .... Returns bool-array of alt values.
+
+// ...................................................... Color:
+d3d.pkColorValues(primaryKey = 'AAPL') //  .............. Returns color-array of main values.
+d3d.pkColorValues(primaryKey = 'AAPL', alt = true) // ... Returns color-array of alt values.
+
+// ...................................................... Timestamp:
+d3d.pkTimestampValues(primaryKey = 'AAPL') // ........... Returns int-array of main timestamps.
+d3d.pkTimestampValues(primaryKey = 'AAPL', alt = true) // Returns int-array of alt timestamps.
+```
+
+```js {{ title: 'Data keys' }}
+// ....................................... For display purpose: uses formatting if applicable:
+d3d.dkValues(dataKey = 'open') // ....................... Returns string-array of main values.
+d3d.dkValues(dataKey = 'open', alt = true) // ........... Returns string-array of alt values.
+
+// ...................................................... String: (preserves sorting)
+d3d.dkStringValues(dataKey = 'open') // ................. Returns string-array of main values.
+d3d.dkStringValues(dataKey = 'open', alt = true) // ..... Returns string-array of alt values.
+
+// ...................................................... Float: (preserves sorting)
+d3d.dkFloatValues(dataKey = 'open') // .................. Returns float-array of main values.
+d3d.dkFloatValues(dataKey = 'open', alt = true) // ...... Returns float-array of alt values.
+
+
+// ...................................................... Integer: (preserves sorting)
+d3d.dkIntValues(dataKey = 'open') // .................... Returns int-array of main values.
+d3d.dkIntValues(dataKey = 'open', alt = true) // ........ Returns int-array of alt values.
+
+// ...................................................... Boolean: (preserves sorting)
+d3d.dkBoolValues(dataKey = 'open') // ................... Returns bool-array of main values.
+d3d.dkBoolValues(dataKey = 'open', alt = true) // ....... Returns bool-array of alt values.
+
+// ...................................................... Color: (preserves sorting)
+d3d.dkColorValues(dataKey = 'open') //  ................. Returns color-array of main values.
+d3d.dkColorValues(dataKey = 'open', alt = true) // ...... Returns color-array of alt values.
+
+// ...................................................... Timestamp: (preserves sorting)
+d3d.dkTimestampValues(dataKey = 'open') // .............. Returns int-array of main timestamps.
+d3d.dkTimestampValues(dataKey = 'open', alt = true) // .. Returns int-array of alt timestamps.
+```
+
+</CodeGroup>
+
+## Fetch Single Value
+
+To retrieve the value for a specific primary and data key from a [`data3d`](/_data3d) object, there are multiple methods available depending on 
+your specific needs. If you only intend to display the value, you can use the [`get()`](#) method, which converts the data into a string, formats 
+it if applicable and returns it.
+
+However, if you require the original data type of the value, you should use the corresponding data type methods 
+available for [`data3d`](/_data3d). The available data type methods are as follows:
+
+- [`get()`](#): Returns the value for the specified primary and data key as a *string*, formatted if applicable.
+- [`getString()`](#): Returns the value for the specified primary and data key as a *string*.
+- [`getFloat()`](#): Returns the value for the specified primary and data key as a *float*.
+- [`getInt()`](#): Returns the value for the specified primary and data key as an *integer*.
+- [`getBool()`](#): Returns the value for the specified primary and data key as a *boolean*.
+- [`getColor()`](#): Returns the value for the specified primary and data key as a *color*.
+- [`getTimestamp()`](#): Returns the value for the specified primary and data key as a *timestamp*.
+
+Please note that if the data you are requesting does not match the data type of the corresponding method, the method 
+will return *na*, indicating that the requested data type is not available for the specified primary and data key.
+
+```js {{ title: 'Get value' }}
+// .................................... For display purpose: (uses formatting if applicable)
+d3d.get(primaryKey = 'AAPL', dataKey = 'close') // Returns main string value for key 'open'.
+d3d.get('AAPL', 'close', alt = true) // .......... Returns alt string value for key 'open'.
+
+// ..................................................... String:
+d3d.getString(primaryKey = 'AAPL', dataKey = 'close') // Returns the main string value.
+d3d.getString('AAPL', 'close', alt = true) // .......... Returns the alt string value.
+
+// .................................................... Float:
+d3d.getFloat(primaryKey = 'AAPL', dataKey = 'close') // Returns the main float value.
+d3d.getFloat('AAPL', 'close', alt = true) // .......... Returns the alt float value.
+
+// .................................................. Integer:
+d3d.getInt(primaryKey = 'AAPL', dataKey = 'close') // Returns the main integer value.
+d3d.getInt('AAPL', 'close', alt = true) // .......... Returns the alt integer value.
+
+// ................................................... Boolean:
+d3d.getBool(primaryKey = 'AAPL', dataKey = 'close') // Returns the main boolean value.
+d3d.getBool('AAPL', 'close', alt = true) // .......... Returns the alt boolean value.
+
+// .................................................... Color:
+d3d.getColor(primaryKey = 'AAPL', dataKey = 'close') // Returns the main color value.
+d3d.getColor('AAPL', 'close', alt = true) // .......... Returns the alt color value.
+
+// ........................................................ Timestamp:
+d3d.getTimestamp(primaryKey = 'AAPL', dataKey = 'close') // Returns the main timestamp value.
+d3d.getTimestamp('AAPL', 'close', alt = true) // .......... Returns the alt timestamp value.
+```
+
+## Comparison
+
+Just like [`data2d`](/_data2d), [`data3d`](/_data3d) also offers similar comparison methods, enabling effortless comparisons of each main value with its corresponding alternate value. All comparison methods maintain sorting order if applicable. The following comparison methods are available:
+
+
+- [`et()`](#): Checks *equality*, for a single data identified by a primary and a data key. Use [`pkEt()`](#) or [`dkEt()`](#) 
+to check all their corresponding values. *(main == alt)*.
+- [`gt()`](#): Checks *greater than*, for a single data identified by a primary and a data key. Use [`pkGt()`](#) or [`dkGt()`](#) 
+to check all their corresponding values. *(main > alt)*.
+- [`gte()`](#): Checks *greater than or equal to*, for a single data identified by a primary and a data key. Use [`pkGte()`](#) or [`dkGte()`](#) 
+to check all their corresponding values. *(main ≥ alt)*.
+- [`lt()`](#): Checks *less than*, for a single data identified by a primary and a data key.Use [`pkLt()`](#) or [`dkLt()`](#) 
+to check all their corresponding values. *(main < alt)*.
+- [`lte()`](#): Checks *less than or equal to*, for a single data identified by a primary and a data key. Use [`pkLte()`](#) or [`dkLte()`](#) 
+to check all their corresponding values. *(main ≤ alt)*.
+- [`change()`](#): Calculates the difference for a single data identified by a primary and a data key. Use [`pkChange()`](#) or [`dkChange()`](#) 
+to check all their corresponding values. USe percent
+- [`changeF()`](#): Formatted difference for a single data identified by a primary and a data key. Use [`pkChangeF()`](#) or [`dkChangeF()`](#) 
+to check all their corresponding values.
+- [`timestamp()`](#): Segmented time difference for a single data identified by a primary and a data key. Use [`pkTimestamp()`](#) or [`dkTimestamp()`](#) 
+to check all their corresponding values.
+
+<CodeGroup title="Compare">
+
+```js {{ title: 'main == alt' }}
+// ....... Checks 'equality' on a single data for a primary and a data key.
+d3d.et(primaryKey = 'AMZN', dataKey = 'close') //  Returns a boolean value.
+
+//  Checks 'equality' on all data for a primary key. (preserves sort order)
+d3d.pkEt(primaryKey = 'AMZN') // ................. Returns a boolean array.
+
+// .......................... Checks 'equality' on all data for a data key.
+d3d.dkEt(dataKey = 'AMZN') // .................... Returns a boolean array.
+```
+
+```js {{ title: 'main > alt' }}
+// ...... Checks 'greater than' on a single data for a primary and a data key.
+d3d.gt(primaryKey = 'AMZN', dataKey = 'close') // ... Returns a boolean value.
+
+// Checks 'greater than' on all data for a primary key. (preserves sort order)
+d3d.pkGt(primaryKey = 'AMZN') // .................... Returns a boolean array.
+
+// ......................... Checks 'greater than' on all data for a data key.
+d3d.dkGt(dataKey = 'AMZN') // ....................... Returns a boolean array.
+```
+
+```js {{ title: 'main ≥ alt' }}
+// ...... Checks 'greater than or equal to' on a single data for a primary and a data key.
+d3d.gte(primaryKey = 'AMZN', dataKey = 'close') // .............. Returns a boolean value.
+
+// Checks 'greater than or equal to' on all data for a primary key. (preserves sort order)
+d3d.pkGte(primaryKey = 'AMZN') // ............................... Returns a boolean array.
+
+// ......................... Checks 'greater than or equal to' on all data for a data key.
+d3d.dkGte(dataKey = 'AMZN') // .................................. Returns a boolean array.
+```
+
+```js {{ title: 'main < alt' }}
+// ...... Checks 'less than' on a single data for a primary and a data key.
+d3d.lt(primaryKey = 'AMZN', dataKey = 'close') //  Returns a boolean value.
+
+// Checks 'less than' on all data for a primary key. (preserves sort order)
+d3d.pkLt(primaryKey = 'AMZN') // ................. Returns a boolean array.
+
+// ......................... Checks 'less than' on all data for a data key.
+d3d.dkLt(dataKey = 'AMZN') // .................... Returns a boolean array.
+```
+
+```js {{ title: 'main ≤ alt' }}
+// ...... Checks 'less than or equal to' on a single data for a primary and a data key.
+d3d.lte(primaryKey = 'AMZN', dataKey = 'close') // ........... Returns a boolean value.
+
+// Checks 'less than or equal to' on all data for a primary key. (preserves sort order)
+d3d.pkLte(primaryKey = 'AMZN') // ............................ Returns a boolean array.
+
+// ......................... Checks 'less than or equal to' on all data for a data key.
+d3d.dkLte(dataKey = 'AMZN') // ............................... Returns a boolean array.
+```
+
+</CodeGroup>
+
+<CodeGroup title="Change">
+
+```js {{ title: 'Difference' }}
+// Returns the difference of a primary key and a data key's value.
+d3d.change(primaryKey = 'AMZN', dataKey = 'close')
+
+// Returns all the differences of a primary key in an array. 
+d3d.pkChange(primaryKey = 'AMZN') // (preserves sort order)
+
+// Returns all the differences of a data key in an array.
+d3d.dkChange(dataKey = 'AMZN')
+```
+
+```js {{ title: 'Percent' }}
+// Returns the percentage difference of a primary key and a data key's value.
+d3d.change(primaryKey = 'AMZN', dataKey = 'close', percent = true)
+
+// Returns all the percentage differences of a primary key in an array. 
+d3d.pkChange(primaryKey = 'AMZN', percent = true) // (preserves sort order)
+
+// Returns all the percentage differences of a data key in an array.
+d3d.dkChange(dataKey = 'AMZN', percent = true)
+```
+
+```js {{ title: 'Formatted difference' }}
+// Returns the formatted difference of a primary key and a data key's value.
+d3d.changeF(
+  primaryKey = 'AMZN', 
+  dataKey = 'close', 
+  format = '{0,number,#}') // Optional. Provide a custom format.
+
+// Returns all the formatted differences of a primary key in an array.
+d3d.pkChangeF( // (preserves sort order)
+  primaryKey = 'AMZN', 
+  format = '{0,number,#}')  // Optional. Provide a custom format.
+
+// Returns all the formatted differences of a data key in an array.
+d3d.dkChangeF(
+  dataKey = 'AMZN', 
+  format = '{0,number,#}') // Optional. Provide a custom format.
+```
+
+```js {{ title: 'Formatted percent' }}
+// Returns the formatted percentage difference of a primary key and a data key's value.
+d3d.changeF(
+  primaryKey = 'AMZN', 
+  dataKey = 'close', 
+  percent = true,
+  format = '{0,number,#}') // Optional. Provide a custom format.
+
+// Returns all the formatted percentage differences of a primary key in an array.
+d3d.pkChangeF( // (preserves sort order)
+  primaryKey = 'AMZN',
+  percent = true,
+  format = '{0,number,#}')  // Optional. Provide a custom format.
+
+// Returns all the formatted percentage differences of a data key in an array.
+d3d.dkChangeF(
+  dataKey = 'AMZN',
+  percent = true,
+  format = '{0,number,#}') // Optional. Provide a custom format.
+```
+
+</CodeGroup>
+
+<CodeGroup title='Timestamp'> 
+
+```js {{ title: 'Timestamp' }}
+// Get time difference of a primary key and a data key's value.
+d3d.timestampChange( // .... Returns a string with time segments.
+  primaryKey = 'open',
+  dataKey = 'open',
+  years = true, // ......... Switch to turn on/off the years segment. Default is false.
+  months = false, // ....... Switch to turn on/off the months segment. Default is false.
+  weeks = false, // ........ Switch to turn on/off the weeks segment. Default is false.
+  days = true, // .......... Switch to turn on/off the days segment. Default is true.
+  hours = true, // ......... Switch to turn on/off the hours segment. Default is true.
+  minutes = true, // ....... Switch to turn on/off the minutes segment. Default is true.
+  seconds = true) // ....... Switch to turn on/off the seconds segment. Default is true.
+
+// Returns all the time differences of a primary key in an array. 
+d3d.pkTimestampChange( // .. Returns an array of strings with time segments.
+  primaryKey = 'open',
+  years = true, // ......... Switch to turn on/off the years segment. Default is false.
+  months = false, // ....... Switch to turn on/off the months segment. Default is false.
+  weeks = false, // ........ Switch to turn on/off the weeks segment. Default is false.
+  days = true, // .......... Switch to turn on/off the days segment. Default is true.
+  hours = true, // ......... Switch to turn on/off the hours segment. Default is true.
+  minutes = true, // ....... Switch to turn on/off the minutes segment. Default is true.
+  seconds = true) // ....... Switch to turn on/off the seconds segment. Default is true.
+
+// Returns all the time differences of a data key in an array. 
+d3d.dkTimestampChange( // .... Returns an array of strings with time segments.
+  dataKey = 'open',
+  years = true, // ......... Switch to turn on/off the years segment. Default is false.
+  months = false, // ....... Switch to turn on/off the months segment. Default is false.
+  weeks = false, // ........ Switch to turn on/off the weeks segment. Default is false.
+  days = true, // .......... Switch to turn on/off the days segment. Default is true.
+  hours = true, // ......... Switch to turn on/off the hours segment. Default is true.
+  minutes = true, // ....... Switch to turn on/off the minutes segment. Default is true.
+  seconds = true) // ....... Switch to turn on/off the seconds segment. Default is true.
+```
+
+</CodeGroup>

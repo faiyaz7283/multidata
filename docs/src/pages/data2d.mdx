@@ -1,0 +1,479 @@
+export const description =
+  'In this guide, we’ll look at how to get started with data2d data structure.'
+
+# Data2d
+
+The [`data2d`](/_data2d) data structure serves as a versatile solution for storing key-value pairs in *Pine Script*. Unlike the standard 
+*arrays* in *Pine Script*, which are limited to storing single type values and do not offer key associations, [`data2d`](/_data2d) allows 
+you to store multiple types of data and associate each value with a unique key. This unique feature enables more advanced data management 
+and analysis within *Pine Script's* indicators, strategies and libraries.
+
+## Structure 
+
+To achieve the functionality of storing key-value pairs with multiple types of data, [`data2d`](/_data2d) relies on another custom object 
+called [`kv`](/create-keys-values#kv) *(key-value)*. The [`kv`](/create-keys-values#kv)  object acts as a container for a single key with its corresponding value. By utilizing 
+these [`kv`](/create-keys-values#kv)  objects within an *array* and pushing them onto a [`data2d`](/_data2d) object, we create a robust system for key-value 
+storage.
+
+## Key Features
+
+In addition to basic key-value pairing, the [`data2d`](/_data2d) object offers several powerful features:
+
+- **Storing Alternate Values:** Each key-value pair can store an alternate value, enabling the association of two values under 
+one key. This key-value-alternate pairing proves particularly valuable when working with data that requires multiple associated 
+values, such as storing both the current and last closing prices under the same key "close". It's important to note that the 
+alternate value MUST be of the same data type as the original value. For added convenience, [`data2d`](/_data2d) provides numerous built-in 
+comparison methods that work seamlessly with *key-value-alternate* pairs.
+- **Comparison With Alternate:** The ability to store alternate values brings with it the convenience of built-in comparison methods. You can 
+perform multiple comparison operations to compare main values with their corresponding alternate values. Additionally, you can effortlessly 
+obtain the change difference and change percentage between the main and alternate values.
+- **Storing Unix Timestamps:** The [`data2d`](/_data2d) object offers the capability to store *Unix timestamps* as a distinct data type. This 
+feature greatly simplifies the handling of *timestamp* values. You can effortlessly store, retrieve, and display *timestamps* with the 
+[`data2d`](/_data2d) object. By default, it presents *Unix timestamp* values in a human-readable format. You have the flexibility to customize 
+this formatting according to your preferences. Additionally, the utility of alternate values can be fully leveraged for *timestamps*, as the 
+[`data2d`](/_data2d) object includes built-in comparison methods specifically designed for *timestamp* comparisons.
+- **Automatic Formatting:**  The [`data2d`](/_data2d) object automatically formats and stores the formatted version of each data entry, 
+leveraging formatting options when available. This feature is especially useful when dealing with timestamps or other complex 
+data types, simplifying data management and enhancing readability.
+- **Sorting Capability:** Similar to *Pine Script's arrays*, the [`data2d`](/_data2d) object supports data sorting. However, unlike standard 
+*arrays*, it allows sorting for all data types, not limited to 
+*integers* and *floats*. To ensure successful sorting, a single [`data2d`](/_data2d) 
+object must hold values of only one data type. Attempting to sort a [`data2d`](/_data2d) object with mixed data types will result in an 
+invalid operation.
+- **Extended Array Functions:** The [`data2d`](/_data2d) object extends some array functions, granting direct access to familiar array 
+manipulations directly within the object. This streamlines data manipulation operations, making it easier and more 
+intuitive to work with [`data2d`](/_data2d) objects.
+
+## Setup Keys And Values
+
+To construct a single key-value pair, the recommended approach is to use the [`kv()`](/create-keys-values#kv-2) method. This method accepts the following four 
+parameters:
+
+- **this:** A string object, used as the *key* identifier. 
+- **val:** The *val* parameter denotes the main value to be stored under the specified key.
+- **altVal:** The *altVal* parameter allows the inclusion of an alternate value for the same key. This proves useful when there is a 
+need to associate two different values under one key.
+- **format:** The *format* parameter provides the option to set a custom format for the individual key. This custom format will take 
+precedence over the global format set on the [`data2d`](/_data2d) object.
+
+<CodeGroup title="Creating kv objects">
+
+```js {{ title: 'Simple' }}
+_open  = 'open'.kv(open)
+_high  = 'high'.kv(high)
+_low   = 'low'.kv(low)
+_close = 'close'.kv(close)
+
+```
+
+```js {{ title: 'Alternate' }}
+// Using the altVal parameter.
+_open  = 'open'.kv(val = open,   altVal = open[1])
+_high  = 'high'.kv(val = high,   altVal = high[1])
+_low   = 'low'.kv(val = low,     altVal = low[1])
+_close = 'close'.kv(val = close, altVal = close[1])
+
+// or
+
+// Using the alt() method. You can chain them for convenience.
+_open  = 'open'.kv(open).alt(open[1])
+_high  = 'high'.kv(high).alt(high[1])
+_low   = 'low'.kv(low).alt(low[1])
+_close = 'close'.kv(close).alt(close[1])
+```
+
+```js {{ title: 'Format' }}
+// Using the format parameter.
+_open  = 'open'.kv(val = open,   foramt = 'Open: {0,number,currency}')
+_high  = 'high'.kv(val = high,   foramt = 'High: {0,number,currency}')
+_low   = 'low'.kv(val = low,     foramt = 'Low: {0,number,currency}')
+_close = 'close'.kv(val = close, foramt = 'Close: {0,number,currency}')
+
+// or
+
+// Using the format() method. You can chain them for convenience.
+_open  = 'open'.kv(open).format("Open: {0,number,currency}")
+_high  = 'high'.kv(high).forma("High: {0,number,currency}")
+_low   = 'low'.kv(low).format("Low: {0,number,currency}")
+_close = 'close'.kv(close).format("Close: {0,number,currency}")
+```
+
+</CodeGroup>
+
+Once you have your [`kv`](/create-keys-values#kv) objects created, store them in an *array*. We will use this array on later examples when we initiate 
+our [`data2d`](/_data2d) object.
+
+```js {{ title: 'Store kv objects in array' }}
+_kvs_ = array.from(_open, _high, _low, _close)
+```
+
+## Exploring Data Types
+
+One of the key strengths of the [`data2d`](/_data2d) data structure is its versatility in handling various data types. It provides the 
+capability to store six different data types, and there is no restriction on selecting just one type at a time. Instead, you can combine 
+multiple data types within a single [`data2d`](/_data2d) object. The supported data types for [`data2d`](/_data2d) are as follows:
+
+1. **string:** Represents string values.
+2. **float:** Represents floating-point numbers (decimals).
+3. **int:** Represents integers (whole numbers).
+4. **bool:** Represents boolean values (true or false).
+5. **color:** Represents color values.
+6. **timestamp:** Represents Unix-timestamp in milliseconds. Although *timestamps* are internally built using the *int* data 
+type, [`data2d`](/_data2d) creates a clear distinction between *integers* and *timestamps*.
+
+Let's explore some examples and variations that demonstrate working with multiple data types in [`data2d`](/_data2d):
+
+<CodeGroup title="Multiple data type examples">
+
+```js {{ title: 'String' }}
+string1 = 'string1'.kv('Apple').alt('aapl')
+```
+
+```js {{ title: 'Float' }}
+float1 = 'float1'.kv(48.981).alt(125.09)
+```
+
+```js {{ title: 'Integer' }}
+int1 = 'int1'.kv(35).alt(46)
+```
+
+```js {{ title: 'Boolean' }}
+bool1 = 'bool1'.kv(true).alt(false)
+```
+
+```js {{ title: 'Color' }}
+color1 = 'color1'.kv(#FF0000).alt(#FF1D25)
+```
+
+```js {{ title: 'Timestamp' }}
+// REQUIRED: `timestamp = true`.
+// If you don't use the timestamp parameter, data2d will assume its an integer value.
+time1 = 'time1'.kv(
+  val = 1695618954000,
+  altVal = 1192002131000,
+  timestamp = true,
+  timezone = 'America/Los_Angeles',
+  format = 'yyyy-MM-dd')
+```
+
+```js {{ title: 'Mixed types' }}
+// Combine any number of data types.
+string1 = 'string1'.kv('Apple').alt('aapl')
+float1  = 'float1'.kv(48.981).alt(125.09)
+int1    = 'int1'.kv(35).alt(46)
+bool1   = 'bool1'.kv(true).alt(false)
+color1  = 'color1'.kv(#FF0000).alt(#FF1D25)
+time1   = 'time1'.kv(1695618954000, timestamp = true).alt(1192002131000)
+```
+
+</CodeGroup>
+
+Once you have created your [`kv`](/create-keys-values#kv) objects, you can store them in an *array*. Since the [`kv`](/create-keys-values#kv) objects handle the 
+association of keys with their respective values, the data type of the underlying values is not an issue for 
+*Pine Script*. For example, let's use the [`kv`](/create-keys-values#kv) objects from the mixed types example above:
+
+```js {{ title: 'Store kv objects in array' }}
+_kvs_ = array.from(string1, float1, int1, bool1, color1, time1)
+```
+
+## Create Data2d Object
+
+To instantiate a [`data2d`](/_data2d) object, you will need to pass an *array* 
+of [`kv`](/create-keys-values#kv) objects to the recommended [`data2d()`](#) function. This function ensures that all keys are unique and performs essential internal 
+functions to create the [`data2d`](/_data2d) object efficiently. The [`data2d()`](#) function accepts five parameters:
+
+- **kvs:** An *array* of [`kv`](/create-keys-values#kv) objects containing key-value pairs. 
+These pairs will form the basis of the [`data2d`](/_data2d) object.
+- **sort:** An optional *boolean* flag that indicates whether the [`data2d`](/_data2d) object should be sorted. If set to true, the data will be 
+sorted; otherwise, it will retain its original order. Data2d containing mixed types cannot be sorted.
+- **asc:** An optional *boolean* flag that specifies the sorting order. When set to true, 
+the data will be sorted in ascending order; when set to false, it will be sorted in descending order. This parameter is effective only when sort 
+is set to true.
+- **change:** An optional *boolean* flag used in the context of sorting within the [`data2d`](/_data2d) 
+object. When set to true, it indicates that the sorting should be based on the change percentage values. These change percentages are calculated 
+using the main and alternate values. It's important to note that this functionality only works when alternate values are available.
+- **format:** An optional parameter that sets the global format for the entire [`data2d`](/_data2d) object. This format will be applied 
+to all the values within the object. Individual keys with custom format will be ignored.
+- **timezone:** An optional parameter that specifies the timezone used for any *timestamp* related values within the [`data2d`](/_data2d) object. By 
+default, it uses the chart's timezone.
+
+Let's explore some examples and variations of creating a [`data2d`](/_data2d) object using the [`data2d()`](#) method:
+
+<Note>
+    The following example utilizes the *\_kvs\_* variable, which represents an array of [`kv`](/create-keys-values#kv) objects that we previously created in the examples above.
+</Note>
+
+```js {{ title: 'Creating data2d object' }}
+d2d = data2d(
+  kvs = _kvs_, // .................. Required. An array of kv objects.
+  sort = true, // .................. Optional. Sort the data2d object.
+  asc = false, // .................. Optional. False implies descending order.
+  change = true, // ................ Optional. True implies sorting based on change percentages.
+  format = '{0,number,currency}', // Optional. Use this format as default fallback.
+  timezone = 'GMT+2') // ........... Optional. Use this timezone as default fallback.
+```
+
+## Extended Array Functions
+
+The [`data2d`](/_data2d) object extends some of the built-in *array* functions, providing convenient and familiar *array* manipulations directly within the 
+[`data2d`](/_data2d) object. Here are the extended methods:
+
+- [`includes()`](/extended#includes): Use this method to search for a specific value within the [`data2d`](/_data2d) object. This method returns a 
+*boolean* value indicating whether the searching value is present in any of the 
+key-value pairs.
+- [`set()`](/extended#set): This method allows you to modify an existing value in the [`data2d`](/_data2d) object. When using this method, the data type of the new value 
+must match the data type of the original value associated with the specified key. Re-sorting of data will be triggered if data is sorted.
+- [`push()`](/extended#push): This method is used to insert a new key and value pair at the end of the [`data2d`](/_data2d) object. Re-sorting of data will be 
+triggered if data is sorted.
+- [`remove()`](/extended#remove): Use this method to remove a key and its associated value from the [`data2d`](/_data2d) object. You can also use this method to 
+simply remove the alternate value. Re-sorting of data will be triggered if data is sorted.
+- [`sort()`](/extended#sort): Use this method to sort the [`data2d`](/_data2d) object.
+- [`format()`](/extended#format): Use this method to set the default format for the [`data2d`](/_data2d) object. You can also use this method with 
+[`kv`](/create-keys-values#kv) objects to set custom formats for any key-value pair.
+
+<Note>
+  All the remaining examples below will utilize the *d2d* variable, which represents a [`data2d`](/_data2d) object that we previously created in 
+  the example above.
+</Note> 
+
+<CodeGroup title="Extended functions">
+
+```js {{ title: 'Includes' }}
+d2d.includes(123.45) // ........... Check within main values. Returns bool.
+d2d.includes(123.45, alt = true) // Check within alternate values. Returns bool.
+```
+
+```js {{ title: 'Set' }}
+d2d.set(key = 'open', value = 123.45) // ........... Modify main value for key 'open'.
+d2d.set(key = 'open', value = 456.78, alt = true) // Modify alternate value for key 'open'.
+```
+
+```js {{ title: 'Push' }}
+d2d.push(
+  key = 'misc', // ................... Required. A unique key.
+  value = 123.45, // ................. Required. Any accepted data type value.
+  altValue = 678.90, // .............. Optional. Alternate value, must match main value type.
+  format = "Misc: {0,number,0.00}") // Optional. Add a custom format.
+```
+
+```js {{ title: 'Remove' }}
+d2d.remove(key = 'misc') // .......... Remove the 'misc' key and value pair.
+d2d.remove(key = 'low', alt = true) // Remove just the alternate value of key 'low'.
+```
+
+```js {{ title: 'Sort' }}
+d2d.sort() // ........................... Sorts in ascending order, using main values.
+d2d.sort(change = true) // .... Sorts in ascending order, using change percent values.
+d2d.sort(asc = false, change = false) // Sorts in descending order, using main values.
+```
+
+```js {{ title: 'Format' }}
+kv.format(format = 'kv: {0}', timezone = 'GMT+2') // Set a custom format for a kv object.
+d2d.format('{0,number,#.#}') // ................. Set default format for a data2d object.
+d2d.format('yyyy-MM-dd') // ......... Set a time format. Applies to all timestamp values.
+```
+
+</CodeGroup>
+
+## Fetch Keys
+
+To obtain all the keys stored within the [`data2d`](/_data2d) object, you can use the [`keys()`](#) method. This method returns a  
+*string-array* containing all the keys, and it preserves the sort 
+order if the [`data2d`](/_data2d) object is sorted.
+
+```js {{ title: 'Get Keys' }}
+d2d.keys() // returns a string array of all keys. Maintains sort order when sort is true.
+```
+
+## Fetch all values
+
+To retrieve the values from a [`data2d`](/_data2d) object, there are multiple methods available depending on your specific needs. 
+If you only intend to display the data, you can use the [`values()`](#) method, which converts all values into 
+*strings*, formats them if applicable, and returns them as a *string-array*.
+
+However, if you require the original data type of the values, you should use the corresponding data type methods 
+available for [`data2d`](/_data2d). The available data type methods are as follows:
+
+- [`stringValues()`](#): Returns a *string-array* of all main values.
+- [`floatValues()`](#): Returns a *float-array* of all main values.
+- [`intValues()`](#): Returns an *integer-array* of all main values.
+- [`boolValues()`](#): Returns a *boolean-array* of all main values.
+- [`colorValues()`](#): Returns a *color-array* of all main values.
+- [`timestampValues()`](#): Returns an *integer-array* of all main *timestamp* values.
+
+Please note that if the [`data2d`](/_data2d) object stores multiple types of data, calling any of these data type methods will only 
+return values that match the specified data type, and *na* for the remaining types. All methods maintain the sort order 
+if the object is sorted.
+
+```js {{ title: 'Get values' }}
+// ............................... For display purpose:
+d2d.values() // .................. Returns string-array of main values.
+d2d.values(alt = true) // ........ Returns string-array of alternate values.
+
+// ............................... String:
+d2d.stringValues() // ............ Returns string-array of main values.
+d2d.stringValues(alt = true) // .. Returns string-array of alternate values.
+
+// ............................... Float:
+d2d.floatValues() // ............. Returns float-array of main values.
+d2d.floatValues(alt = true) // ... Returns float-array of alternate values.
+
+
+// ............................... Integer:
+d2d.intValues() // ............... Returns int-array of main values.
+d2d.intValues(alt = true) // ..... Returns int-array of alternate values.
+
+// ............................... Boolean:
+d2d.boolValues() // .............. Returns bool-array of main values.
+d2d.boolValues(alt = true) // .... Returns bool-array of alternate values.
+
+// ............................... Color:
+d2d.colorValues() //  ............ Returns color-array of main values.
+d2d.colorValues(alt = true) // ... Returns color-array of alternate values.
+
+// ............................... Timestamp:
+d2d.timestampValues() // ......... Returns int-array of main timestamp values.
+d2d.timestampValues(alt = true) // Returns int-array of alternate timestamp values.
+```
+
+## Fetch Single Value
+
+To retrieve the value for a specific key from a [`data2d`](/_data2d) object, there are multiple methods available depending on 
+your specific needs. If you only intend to display the value, you can use the [`get()`](#) method, which converts the 
+data into a string, formats it if applicable and returns it.
+
+However, if you require the original data type of the value, you should use the corresponding data type methods 
+available for [`data2d`](/_data2d). The available data type methods are as follows:
+
+- [`get()`](#): Returns the value for the specified key as a *string*, formatted if applicable.
+- [`getString()`](#): Returns the value for the specified key as a *string*.
+- [`getFloat()`](#): Returns the value for the specified key as a *float*.
+- [`getInt()`](#): Returns the value for the specified key as an *integer*
+- [`getBool()`](#): Returns the value for the specified key as a *boolean*.
+- [`getColor()`](#): Returns the value for the specified key as a *color*.
+- [`getTimestamp()`](#): Returns the value for the specified key as a *timestamp*.
+
+Please note that if the key you are requesting does not match the data type of the corresponding method, the method 
+will return *na*, indicating that the requested data type is not available for the specified key.
+
+```js {{ title: 'Get value' }}
+// .......................................... For display purpose:
+d2d.get(key = 'open') // .................... Returns main string value for key 'open'.
+d2d.get(key = 'open', alt = true) // ........ Returns alternate string value for key 'open'.
+
+// .......................................... String:
+d2d.getString(key = 'open') // .............. Returns main string value for key 'open'.
+d2d.getString(key = 'open', alt = true) // .. Returns alternate string value for key 'open'.
+
+// .......................................... Float:
+d2d.getFloat(key = 'open') // ............... Returns main float value for key 'open'.
+d2d.getFloat(key = 'open', alt = true) // ... Returns alternate float value for key 'open'.
+
+// .......................................... Integer:
+d2d.getInt(key = 'open') // ................. Returns main integer value for key 'open'.
+d2d.getInt(key = 'open', alt = true) // ..... Returns alternate integer value for key 'open'.
+
+// .......................................... Boolean:
+d2d.getBool(key = 'open') // ................ Returns main boolean value for key 'open'.
+d2d.getBool(key = 'open', alt = true) // .... Returns alternate boolean value for key 'open'.
+
+// .......................................... Color:
+d2d.getColor(key = 'open') // ............... Returns main color value for key 'open'.
+d2d.getColor(key = 'open', alt = true) // ... Returns alternate color value for key 'open'.
+
+// .......................................... Timestamp:
+d2d.getTimestamp(key = 'open') // ........... Returns main timestamp value for key 'open'.
+d2d.getTimestamp(key = 'open', alt = true) // Returns alternate timestamp value for key 'open'.
+```
+
+## Comparison
+
+The power of alternate values becomes evident with the inclusion of built-in comparison methods in the [`data2d`](/_data2d) object. 
+These methods enable effortless comparisons of each main value with its corresponding alternate value. All comparison methods maintain 
+sorting order if applicable. By default, the methods return comparison for all keys. However, you can easily compare a single key data 
+by specifying the key parameter. The following comparison methods are available:
+
+- [`et()`](#): This method checks for *equality*, and the comparison operator used is *main == alt*.
+- [`gt()`](#): This method checks for *greater than*, and the comparison operator used is *main > alt*.
+- [`gte()`](#): This method checks for *greater than or equal to*, and the comparison operator used is *main ≥ alt*.
+- [`lt()`](#): This method checks for *less than*, and the comparison operator used is *main < alt*.
+- [`lte()`](#): This method checks for *less than or equal to*, and the comparison operator used is *main ≤ alt*.
+- [`change()`](#): This method returns the difference between the main and the alternate value(s) by subtracting the alternate value 
+from the main value. Additionally, you can request to return the percentage change by using the *percent = true* parameter.
+- [`changeF()`](#): This method is identical to [`change()`](#) but returns the formatted value. You can provide a custom format as well.
+- [`timestampChange()`](#): Similar to the [`changeF()`](#) method, [`timestampChange()`](#) targets only timestamp values. It enables 
+you to compare the main vs. alternate timestamp values and return their time difference in segmented times, such as years, months, days, 
+hours, minutes, and seconds as a formatted string. 
+
+<CodeGroup title="Main vs alternate">
+
+```js {{ title: 'Compare' }}
+// ..................... Check 'equality': main == alt. (preserves sort order)
+d2d.et() // ............ Runs comparison for all keys. Returns a boolean array.
+d2d.et(key = 'open') //  Runs comparison for a single key. Returns a boolean value.
+
+// ..................... Check 'greater than': main > alt. (preserves sort order)
+d2d.gt() // ............ Runs comparison for all keys. Returns a boolean array.
+d2d.gt(key = 'open') //  Runs comparison for a single key. Returns a boolean value.
+
+// ..................... Check 'greater than or equal to': main ≥ alt. (preserves sort order)
+d2d.gte() // ........... Runs comparison for all keys. Returns a boolean array.
+d2d.gte(key = 'open') // Runs comparison for a single key. Returns a boolean value.
+
+// ..................... Check 'less than': main < alt. (preserves sort order.)
+d2d.lt() // ............ Runs comparison for all keys. Returns a boolean array.
+d2d.lt(key = 'open') //  Runs comparison for a single key. Returns a boolean value.
+
+// ..................... Check 'less than or equal to': main ≤ alt. (preserves sort order)
+d2d.lte() // ........... Runs comparison for all keys. Returns a boolean array.
+d2d.lte(key = 'open') // Runs comparison for a single key. Returns a boolean value.
+```
+
+```js {{ title: 'Change' }}
+// ........................... Get the difference: main - alt. (preserves sort order)
+d2d.change() // .............. Calculates for all keys. Returns a boolean array.
+d2d.change(key = 'open') // .. Calculates for a single key. Returns a boolean value.
+
+// Get the percentage difference: (main - alt) / alt * 100. (preserves sort order)
+d2d.change(percent = true) //  Calculates for all keys. Returns a boolean array.
+d2d.change( // ............... Calculates for a single key. Returns a boolean value.
+  key = 'open',
+  percent = true)
+
+// ........................... Get the formatted difference: main - alt. (preserves sort order)
+d2d.changeF( // .............. Calculates for all keys. Returns a boolean array.
+  format = "{0,number,#}") //  Provide a custom format. Otherwise, a default format will be used.
+d2d.changeF(key = 'open') // . Calculates for a single key. Returns a boolean value.
+
+// Get the formatted percentage difference: (main - alt) / alt * 100. (preserves sort order)
+d2d.changeF(percent = true) // Calculates for all keys. Returns a boolean array.
+d2d.changeF( // .............. Calculates for a single key. Returns a boolean value.
+  key = 'open',
+  percent = true,
+  format = "Pct: {0}%") // ... Provide a custom format. Otherwise, a default format will be used.
+```
+
+```js {{ title: 'Timestamp' }}
+// ......................... Get timestamp changes for all keys: (preserves sort order)
+d2d.timestampChange( // .... Returns an array of strings with time segments.
+  years = true, // ......... Switch to turn on/off the years segment. Default is false.
+  months = false, // ....... Switch to turn on/off the months segment. Default is false.
+  weeks = false, // ........ Switch to turn on/off the weeks segment. Default is false.
+  days = true, // .......... Switch to turn on/off the days segment. Default is true.
+  hours = true, // ......... Switch to turn on/off the hours segment. Default is true.
+  minutes = true, // ....... Switch to turn on/off the minutes segment. Default is true.
+  seconds = true) // ....... Switch to turn on/off the seconds segment. Default is true.
+
+// ......................... Get timestamp change for a single key: 
+d2d.timestampChange( // .... Returns a string with time segments for single key.
+  key = 'open', // ......... Single key to calculate.
+  years = true, // ......... Switch to turn on/off the years segment. Default is false.
+  months = false, // ....... Switch to turn on/off the months segment. Default is false.
+  weeks = false, // ........ Switch to turn on/off the weeks segment. Default is false.
+  days = true, // .......... Switch to turn on/off the days segment. Default is true.
+  hours = true, // ......... Switch to turn on/off the hours segment. Default is true.
+  minutes = true, // ....... Switch to turn on/off the minutes segment. Default is true.
+  seconds = true) // ....... Switch to turn on/off the seconds segment. Default is true.
+```
+
+</CodeGroup>

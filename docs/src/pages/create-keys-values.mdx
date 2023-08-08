@@ -1,0 +1,178 @@
+export const description =
+  'On this page, we’ll look at the make up of the val, kv and pkv objects. Also the kv(), alt() and pkv() methods.'
+
+# Create Keys And Values
+
+The [`kv`](/create-keys-values#kv) and [`pkv`](/create-keys-values#pkv) objects serve as the foundational building blocks for constructing data2d 
+and data3d structures. To ensure the integrity of data structure and maintain proper data organization, it is strongly recommended 
+to exclusively employ the helper methods [`kv()`](/create-keys-values#kv-2) and [`pkv()`](/create-keys-values#pkv-2) for initializing these essential 
+core objects.
+
+## val
+
+<Note>This object is used internally when [`kv`](/create-keys-values#kv) objects are created.</Note>
+
+The val object serves as the foundational element for value storage in both the data2d and data3d structures. Both objects 
+rely on the val object type to determine and store the underlying value's data type accurately. The val object encompasses 
+the following properties:
+
+### Properties
+<Properties>
+  <Property name="stringValue" type="string">
+    A string value. Also, color values are converted and stored as string values. _Optional. The default is na_.
+  </Property>
+  <Property name="floatValue" type="float">
+    A float value. _Optional. The default is na_.
+  </Property>
+  <Property name="intValue" type="int">
+    An integer value. Both regular integer values as well as unix timestamp values (milliseconds), are stored as integer values. _Optional. The default is na_.
+  </Property>
+  <Property name="boolValue" type="bool">
+    A boolean value. _Optional. The default is na_.
+  </Property>
+</Properties>
+
+---
+
+## kv
+
+<Note>Please DO NOT manually create this object. Instead, use the [`kv()`](/create-keys-values#kv-2) method to create kv objects.</Note>
+
+The kv object is the core of key-value pair. It creates the link between a key and its value, a val object. The kv object has the following properties:
+
+### Properties
+<Properties>
+  <Property name="key" type="string">
+    The key identifier.
+  </Property>
+  <Property name="val" type="val">
+    A value represented by the val object. Must contain one of the val properties: val.stringValue, val.floatValue, val.intValue, or val.boolValue.
+  </Property>
+  <Property name="altVal" type="val">
+    An alternate value represented by the val object. Must contain one of the val properties: val.stringValue, val.floatValue, val.intValue, or val.boolValue. _Optional. The default is na_.
+  </Property>
+  <Property name="format" type="string">
+    A custom string format for the val object. _Optional. The default is na_.
+  </Property>
+  <Property name="dataType" type="string">
+    The data type for the value. Possible values are string, float, int, bool, color, and timestamp. 
+  </Property>
+  <Property name="value" type="string">
+    The string version of the original value. _Optional. The default is na_.
+  </Property>
+  <Property name="altValue" type="string">
+    The string version of the alternate value. _Optional. The default is na_.
+  </Property>
+  <Property name="formatValue" type="string">
+    The formatted version of the original value. If no format is available, just uses string version. _Optional. The default is na_.
+  </Property>
+  <Property name="formatAltValue" type="string">
+    The formatted version of the alternate value. If no format is available, just uses string version. _Optional. The default is na_.
+  </Property>
+  <Property name="timezone" type="string">
+    A custom timezone for the value. Applies only for timestamp data types. _Optional. The default is na_.
+  </Property>
+  <Property name="_tz" type="bool">
+    An internal switch to determine if custom timezone is set for this object. _Optional. The default is false_.
+  </Property>
+</Properties>
+
+---
+
+## pkv
+
+<Note>Please DO NOT manually create this object. Instead, use the [`pkv()`](/create-keys-values#pkv-2) method to create pkv objects.</Note>
+
+The pkv object is the core of grouped key-value pairs identified with a primary key. It creates the link between a primary key and 
+its group of key-value pairs, which are essentially an array of kv objects. The pkv object has the following properties:
+
+### Properties
+<Properties>
+  <Property name="primaryKey" type="string">
+    The primary key identifier.
+  </Property>
+  <Property name="dataKeys" type="array<string>">
+    An array of data key identifiers.
+  </Property>
+  <Property name="dataKeyTypes" type="array<string>">
+    An array of data types asscociated with the object's data keys.
+  </Property>
+  <Property name="kvs" type="array<kv>">
+    An array of kv objects. They must adhere to this objects data keys and data key types.
+  </Property>
+</Properties>
+
+---
+
+## kv()
+The kv() method is utilized to construct a [`kv`](/create-keys-values#kv) object, which is the preferred approach for generating 
+[`kv`](/create-keys-values#kv) object. This method systematically constructs the [`kv`](/create-keys-values#kv) object, ensuring that 
+all of its properties are properly satisfied.
+
+<Properties>
+  <Property name="this" type="string">
+    A string object, representing a unique key identifier.
+  </Property>
+  <Property name="val" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+  </Property>
+  <Property name="altVal" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color. 
+    _Optional. The default is na_.
+  </Property>
+  <Property name="timestamp" type="bool">
+    A boolean flag to indicate if the integer value is of timestamp data type. Use true for timestamp values.
+    This parameter is only available with integer values (includes timestamps); for all other cases, not available. 
+    _Optional. The default is na_.
+  </Property>
+  <Property name="timezone" type="string">
+    A string representing timezone in UTC/GMT notation (e.g., "UTC-5", "GMT+0530") or as an IANA time zone 
+    database name (e.g., "America/New_York"). 
+    This parameter is only available with integer values (includes timestamps); for all other cases, not available. 
+    _Optional. The default is na_.
+  </Property>
+  <Property name="format" type="string">
+    A string format. _Optional. The default is na_.
+  </Property>
+  <Property name="returns" type="kv">
+    A kv object.
+  </Property>
+</Properties>
+
+---
+
+## alt()
+Set alternate value for a [`kv`](/create-keys-values#kv) object.
+
+<Properties>
+  <Property name="this" type="kv">
+    A kv object.
+  </Property>
+  <Property name="altVal" type="object">
+    An object of type string, float, integer (including Unix timestamp), boolean, or color. 
+    It must match the data type of the kv object.
+  </Property>
+  <Property name="returns" type="kv">
+    This kv object.
+  </Property>
+</Properties>
+
+---
+
+## pkv()
+The pkv() method is utilized to construct a [`pkv`](/create-keys-values#pkv) object, which is the preferred approach for generating 
+[`pkv`](/create-keys-values#pkv) object. This method systematically constructs the [`pkv`](/create-keys-values#pkv) object, ensuring that 
+all of its properties are properly satisfied.
+
+
+<Properties>
+  <Property name="this" type="string">
+    A string object, representing a unique primary key identifier.
+  </Property>
+  <Property name="kvs" type="array<kv>">
+    An array of `kv` objects.
+  </Property>
+  <Property name="returns" type="pkv">
+    A `pkv` object.
+  </Property>
+</Properties>

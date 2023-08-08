@@ -1,0 +1,124 @@
+export const description =
+  'On this page, we\'ll look at the make up of data2d object and data2d helper function.'
+
+# Data2d
+
+<Note>Please DO NOT manually create this object. Instead, use the [`data2d()`](/_data2d#data2d) function to create data2d objects.</Note>
+
+A two dimensional array of key-value data structure. The data2d object has the following properties:
+
+### Properties
+<Properties>
+  <Property name="kvs" type="array<kv>">
+    An array of kv objects.
+  </Property>
+  <Property name="keys" type="array<string>">
+    An array of key identifiers. _Optional. The default is na_.
+  </Property>
+  <Property name="values" type="array<string>">
+    An array of converted string values, formatted if applicable. _Optional. The default is na_.
+  </Property>
+  <Property name="formatValues" type="array<string>">
+    An array of string main values, formatted if applicable. _Optional. The default is na_.
+  </Property>
+  <Property name="altValues" type="array<string>">
+    An array of converted alternate string values, formatted if applicable. _Optional. The default is na_.
+  </Property>
+  <Property name="formatAltValues" type="array<string>">
+    An array of main string values, formatted if applicable. _Optional. The default is na_.
+  </Property>
+  <Property name="stringValues" type="array<string>">
+    An array of main string values. _Optional. The default is na_.
+  </Property>
+  <Property name="stringAltValues" type="array<string>">
+    An array of alternate string values. _Optional. The default is na_.
+  </Property>
+  <Property name="floatValues" type="array<float>">
+    An array of main float values. _Optional. The default is na_.
+  </Property>
+  <Property name="floatAltValues" type="array<float>">
+    An array of alternate float values. _Optional. The default is na_.
+  </Property>
+  <Property name="intValues" type="array<int>">
+    An array of main integer values. _Optional. The default is na_.
+  </Property>
+  <Property name="intAltValues" type="array<int>">
+    An array of alternate integer values. _Optional. The default is na_.
+  </Property>
+  <Property name="boolValues" type="array<bool>">
+    An array of main boolean values. _Optional. The default is na_.
+  </Property>
+  <Property name="boolAltValues" type="array<bool>">
+    An array of alternate boolean values. _Optional. The default is na_.
+  </Property>
+  <Property name="colorValues" type="array<color>">
+    An array of main color values. _Optional. The default is na_.
+  </Property>
+  <Property name="colorAltValues" type="array<color>">
+    An array of alternate color values. _Optional. The default is na_.
+  </Property>
+  <Property name="timestampValues" type="array<int>">
+    An array of main unix timestamp values. _Optional. The default is na_.
+  </Property>
+  <Property name="timestampAltValues" type="array<int>">
+    An array of alternate unix timestamp values. _Optional. The default is na_.
+  </Property>
+  <Property name="dataType" type="string">
+    The data type representing all keys. Possible values are string, float, int, bool, color, timestamp, or mix. _Optional. The default is na_.
+  </Property>
+  <Property name="size" type="int">
+    Total size of the data2d object. _Optional. The default is na_.
+  </Property>
+  <Property name="sorted" type="bool">
+    A boolean flag to determine if the data2d object is sorted or not. _Optional. The default is na_.
+  </Property>
+  <Property name="asc" type="bool">
+     A boolean flag to determine if sorting is in ascending or descending order. Use 'true' for ascending and 'false' for descending. _Optional. The default is true_.
+  </Property>
+  <Property name="change" type="bool">
+     A boolean flag to determine if sorting uses change percent values. Use 'true' for sorting using change percent value. _Optional. The default is false_.
+  </Property>
+  <Property name="format" type="string">
+    A default string format for values. _Optional. The default is na_.
+  </Property>
+  <Property name="formatTime" type="string">
+    A default time format for timestamp values. _Optional. The default is 'yyyy-MM-dd hh:mm:ss a z'_.
+  </Property>
+  <Property name="index" type="array<int>">
+    An array of integer values representing key index. If the object is sorted, the index will be in sorted order. _Optional. The default is na_.
+  </Property>
+  <Property name="timezone" type="string">
+    A default timezone value for the data2d object. _Optional. The default is 'syminfo.timezone'_.
+  </Property>
+</Properties>
+
+---
+
+## data2d()
+
+The data2d() function is the recommended way to create [`data2d`](/_data2d) objects. This function ensures that all keys are unique and performs essential internal 
+functions to create the [`data2d`](/_data2d) object efficiently.
+
+<Properties>
+  <Property name="kvs" type="array<kv>">
+    An array of kv objects.
+  </Property>
+  <Property name="sort" type="bool">
+    Use true for sorting, false otherwise. _Optional. The default is false_.
+  </Property>
+  <Property name="asc" type="bool">
+     Use true for sort order.ascending, false for sort order.descending. _Optional. The default is true_.
+  </Property>
+  <Property name="change" type="bool">
+     Sorts using change percent if true. _Optional. The default is false_.
+  </Property>
+  <Property name="format" type="string">
+    A default format. _Optional. The default is na_.
+  </Property>
+  <Property name="timezone" type="string">
+    A default timezone. _Optional. The default is 'syminfo.timezone'_.
+  </Property>
+  <Property name="returns" type="data2d">
+    A data2d object.
+  </Property>
+</Properties>

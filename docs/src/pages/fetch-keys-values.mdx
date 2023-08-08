@@ -1,0 +1,625 @@
+export const description =
+  'On this page, we’ll look at the make up of all the methods for getting keys and values.'
+
+# Fetch Keys And Values
+
+There are several methods available for retrieving keys and values from data2d and data3d objects. It is highly recommended 
+to utilize these methods instead of directly accessing the objects. These methods are specifically designed to handle various 
+internal functionalities and encapsulate the full capabilities of these data structures.
+
+When dealing with a data3d object, which stores data using primary keys and data keys, there are three main ways to retrieve 
+data: fetching all data associated with a primary key, retrieving all data associated with a data key, or obtaining a single 
+data point associated with both keys. To simplify this process, most methods have prefixes like pk (for primary key) or dk 
+(for data key). This naming convention helps streamline method usage.
+
+## keys()
+
+The keys() method allows you to retrieve all the keys from a data2d object. If the object is sorted, this method will ensure that the keys are 
+returned in the proper sorted order.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## primaryKeys()
+
+The primaryKeys() method allows you to retrieve all the primary keys from a data3d object. If the object is sorted, this method will ensure 
+that the primary keys are returned in the proper sorted order.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## dataKeys()
+
+The dataKeys() method allows you to retrieve all the data keys from a data3d object. 
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## values()
+
+Get all values in string representation. Formatted and sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## pkValues()
+
+Get all values from the primary key in string representation. Formatted and sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A primary key.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## dkValues()
+
+Get all values from the data key in string representation. Formatted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data key.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## stringValues()
+
+Get all string values. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## pkStringValues()
+
+Get all string values from the primary key. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A primary key.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## dkStringValues()
+
+Get all string values from the data key.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data key.
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## floatValues()
+
+Get all float values. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="array<float>">
+    A float array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## pkFloatValues()
+
+Get all float values from the primary key. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="float">
+    A primary key.
+  </Property>
+  <Property name="returns" type="array<float>">
+    A float array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## dkFloatValues()
+
+Get all float values from the data key.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="float">
+    A data key.
+  </Property>
+  <Property name="returns" type="array<float>">
+    A float array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## intValues()
+
+Get all integer values. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="array<int>">
+    An integer array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## pkIntValues()
+
+Get all integer values from the primary key. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="int">
+    A primary key.
+  </Property>
+  <Property name="returns" type="array<int>">
+    An integer array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## dkIntValues()
+
+Get all integer values from the data key.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="int">
+    A data key.
+  </Property>
+  <Property name="returns" type="array<int>">
+    An integer array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## boolValues()
+
+Get all boolean values. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## pkBoolValues()
+
+Get all boolean values from the primary key. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="bool">
+    A primary key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## dkBoolValues()
+
+Get all boolean values from the data key.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="bool">
+    A data key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## colorValues()
+
+Get all color values. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="array<color>">
+    A color array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## pkColorValues()
+
+Get all color values from the primary key. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="color">
+    A primary key.
+  </Property>
+  <Property name="returns" type="array<color>">
+    A color array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## dkColorValues()
+
+Get all color values from the data key.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="color">
+    A data key.
+  </Property>
+  <Property name="returns" type="array<color>">
+    A color array. For keys with all other data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## timestampValues()
+
+Get all unix timestamp values. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="array<timestamp>">
+    An integer array with unix timestamp values. For keys with other than timestamp data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## pkTimestampValues()
+
+Get all unix timestamp values from the primary key. Sorted, if applicable.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A primary key.
+  </Property>
+  <Property name="returns" type="array<timestamp>">
+    An integer array with unix timestamp values. For keys with other than timestamp data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## dkTimestampValues()
+
+Get all unix timestamp values from the data key.
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data key.
+  </Property>
+  <Property name="returns" type="array<timestamp>">
+    An integer array with unix timestamp values. For keys with other than timestamp data types, array item will be `na`.
+  </Property>
+</Properties>
+
+---
+
+## get()
+
+Get a single value in string representation for the specified key(s), formatted, if applicable.
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="string">
+    A string value.
+  </Property>
+</Properties>
+
+---
+
+## getString()
+
+Get the string value for the specified key(s).
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="string">
+    A string value, or na for other data type.
+  </Property>
+</Properties>
+
+---
+
+## getFloat()
+
+Get the float value for the specified key(s).
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="float">
+    A float value, or na for other data type.
+  </Property>
+</Properties>
+
+---
+
+## getInt()
+
+Get the integer value for the specified key(s).
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="int">
+    An integer value, or na for other data type.
+  </Property>
+</Properties>
+
+---
+
+## getBool()
+
+Get the boolean value for the specified key(s).
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value, or na for other data type.
+  </Property>
+</Properties>
+
+---
+
+## getColor()
+
+Get the color value for the specified key(s).
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="color">
+    A color value, or na for other data type.
+  </Property>
+</Properties>
+
+---
+
+## getTimestamp()
+
+Get the unix timestamp value for the specified key(s).
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="alt" type="bool">
+    Set to true to obtain the alternate values instead. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="int">
+    A unix timestamp value, or na for other data type.
+  </Property>
+</Properties>

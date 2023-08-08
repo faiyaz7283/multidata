@@ -1,0 +1,256 @@
+export const description =
+  'On this page, we’ll look at the make up of the array extended methods.'
+
+# Extended Array Functions
+
+The data2d and data3d objects extend several of the built-in array functions, offering a seamless and intuitive experience for 
+performing common array manipulations directly within these objects.
+
+## includes()
+Checks if value is included. This method extends Pine Script's array.includes() function. 
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="value" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+  </Property>
+  <Property name="alt" type="bool">
+    Use true for checking alternate values, false for main values. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## pkIncludes()
+Check if a value is included in a primary key. This method extends Pine Script's array.includes() function. 
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A primary key used for searching.
+  </Property>
+  <Property name="value" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+  </Property>
+  <Property name="alt" type="bool">
+    Use true for checking alternate values, false for main values. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## dkIncludes()
+Check if a value is included in a data key. This method extends Pine Script's array.includes() function. 
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data key used for searching.
+  </Property>
+  <Property name="value" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+  </Property>
+  <Property name="alt" type="bool">
+    Use true for checking alternate values, false for main values. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## set()
+Modifies the value linked to the specified key(s). This method extends Pine Script's array.set() function. 
+
+<Properties>
+  <Property name="this" type="object">
+    An obect of type data2d or data3d. 
+  </Property>
+  <Property name="key" type="string">
+    A key used for searching. This parameter is only available with data2d object; not available when using data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A primary key used for searching. This parameter is only available with data3d object; not available when using data2d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data key used for searching. This parameter is only available with data3d object; not available when using data2d object.
+  </Property>
+  <Property name="value" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+  </Property>
+  <Property name="alt" type="bool">
+    Switch between main or alternate value. Use true for alternate. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="object">
+    This data2d or data3d object.
+  </Property>
+</Properties>
+
+---
+
+## push()
+Push a new key and value pair into a data2d object. This method extends Pine Script's array.push() function. 
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="key" type="string">
+    A key used for searching. This parameter is only available with data2d object; not available when using data3d object.
+  </Property>
+  <Property name="value" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+  </Property>
+  <Property name="altValue" type="object">
+    Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+    It must match the data type of the kv object. _Optional. The default is na_.
+  </Property>
+  <Property name="timestamp" type="bool">
+    A boolean flag to indicate if the integer value is of timestamp data type. Use true for timestamp values.
+    This parameter is only available with integer values (includes timestamps); for all other cases, not available. 
+    _Optional. The default is na_.
+  </Property>
+  <Property name="timezone" type="string">
+    A string representing timezone in UTC/GMT notation (e.g., "UTC-5", "GMT+0530") or as an IANA time zone 
+    database name (e.g., "America/New_York"). 
+    This parameter is only available with integer values (includes timestamps); for all other cases, not available. 
+    _Optional. The default is na_.
+  </Property>
+  <Property name="format" type="string">
+    A string format. _Optional. The default is na_.
+  </Property>
+  <Property name="returns" type="data2d">
+    This data2d object.
+  </Property>
+</Properties>
+
+---
+
+## pkPush()
+Push a new primary key and key-value pairs into a data3d object. This method extends Pine Script's array.push() function. 
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="pkv" type="pkv">
+    A pkv object.
+  </Property>
+  <Property name="returns" type="data3d">
+    This data3d object.
+  </Property>
+</Properties>
+
+---
+
+## remove()
+Removes the key and data of the specified key. If alt is true, then removes only alternate value. This method extends 
+Pine Script's array.remove() function. 
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="key" type="string">
+    A key used for searching.
+  </Property>
+  <Property name="alt" type="bool">
+    Switch between main or alternate value. Use true for alternate. _Optional. The default is false_.
+  </Property>
+  <Property name="returns" type="data2d">
+    This data2d object.
+  </Property>
+</Properties>
+
+---
+
+## pkRemove()
+Removes the primary key and all its data. This method extends Pine Script's array.remove() function. 
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A primary key used for searching.
+  </Property>
+  <Property name="returns" type="data3d">
+    This data3d object.
+  </Property>
+</Properties>
+
+---
+
+## sort()
+Sort data2d keys based on data2d values. This method extends Pine Script's array.sort() function. 
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object. 
+  </Property>
+  <Property name="asc" type="bool">
+    Use true for ascending order, false for Descending order. _Optional. The default is true_.
+  </Property>
+  <Property name="change" type="bool">
+     Sorts using change percent if true. _Optional. The default is na_.
+  </Property>
+  <Property name="returns" type="data2d">
+    A sorted data2d object.
+  </Property>
+</Properties>
+
+---
+
+## sort()
+Sort data3d primary keys based on specified data key. This method extends Pine Script's array.sort() function. 
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object. 
+  </Property>
+  <Property name="dataKey" type="string">
+    The data key used for sorting.
+  </Property>
+  <Property name="asc" type="bool">
+    Use true for ascending order, false for Descending order. _Optional. The default is true_.
+  </Property>
+  <Property name="change" type="bool">
+     Sorts using change percent if true. _Optional. The default is na_.
+  </Property>
+  <Property name="returns" type="data2d">
+    A sorted data2d object.
+  </Property>
+</Properties>
+
+---
+
+## format()
+Set custom format for an object. This method extends Pine Script's str.format() and str.format_time() functions. 
+
+<Properties>
+  <Property name="this" type="object">
+    An object of type kv, data2d or data3d. 
+  </Property>
+  <Property name="format" type="string">
+    A format string.
+  </Property>
+  <Property name="timezone" type="string">
+    A timezone value. This parameter is only available with kv object; for all other cases, not available. _Optional. The default is na_.
+  </Property>
+  <Property name="returns" type="object">
+    This object.
+  </Property>
+</Properties>

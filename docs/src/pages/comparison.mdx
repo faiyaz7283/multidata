@@ -1,0 +1,713 @@
+export const description =
+  'On this page, we’ll look at the make up of all the built-in comparison methods.'
+
+# Comparison
+
+One of the benefits of storing alternate values is the built-in functionality of comparison methods. These methods enable easy comparison 
+and calculation of differences between main and alternate values.
+
+## et()
+
+Get 'equal to' comparison for the specified key(s). (main == alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## et()
+
+Get 'equal to' comparison of all the keys. (main == alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## pkEt()
+
+Get all 'equal to' comparison of a primary key. (main == alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## dkEt()
+
+Get all 'equal to' comparison of a data key. (main == alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## gt()
+
+Get 'greater than' comparison for the specified key(s). (main > alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## gt()
+
+Get 'greater than' comparison of all the keys. (main > alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## pkGt()
+
+Get all 'greater than' comparison of a primary key. (main > alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## dkGt()
+
+Get all 'greater than' comparison of a data key. (main > alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## gte()
+
+Get 'greater than or equal to' comparison for the specified key(s). (main ≥ alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## gte()
+
+Get 'greater than or equal to' comparison of all the keys. (main ≥ alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## pkGte()
+
+Get all 'greater than or equal to' comparison of a primary key. (main ≥ alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## dkGte()
+
+Get all 'greater than or equal to' comparison of a data key. (main ≥ alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## lt()
+
+Get 'less than' comparison for the specified key(s). (main < alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## lt()
+
+Get 'less than' comparison of all the keys. (main < alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## pkLt()
+
+Get all 'less than' comparison of a primary key. (main < alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## dkLt()
+
+Get all 'less than' comparison of a data key. (main < alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## lte()
+
+Get 'less than or equal to' comparison for the specified key(s). (main ≤ alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="returns" type="bool">
+    A boolean value.
+  </Property>
+</Properties>
+
+---
+
+## lte()
+
+Get 'less than or equal to' comparison of all the keys. (main ≤ alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## pkLte()
+
+Get all 'less than or equal to' comparison of a primary key. (main ≤ alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## dkLte()
+
+Get all 'less than or equal to' comparison of a data key. (main ≤ alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="returns" type="array<bool>">
+    A boolean array.
+  </Property>
+</Properties>
+
+---
+
+## change()
+
+Get change or change percent for the specified key(s). (main - alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="returns" type="float">
+    A float value.
+  </Property>
+</Properties>
+
+---
+
+## change()
+
+Get change or change percent of all the keys. (main - alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="returns" type="array<float>">
+    A float array.
+  </Property>
+</Properties>
+
+---
+
+## pkChange()
+
+Get all change or change percent of a primary key. (main - alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="returns" type="array<float>">
+    A float array.
+  </Property>
+</Properties>
+
+---
+
+## dkChange()
+
+Get all change or change percent of a data key. (main - alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="returns" type="array<float>">
+    A float array.
+  </Property>
+</Properties>
+
+---
+
+## changeF()
+
+Get formatted change or change percent for the specified key(s). (main - alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="percent" type="bool">
+    Set to true to get change percent values instead. _Optional. The default is false._ 
+  </Property>
+  <Property name="format" type="na">
+    A custom format. Uses a default format, if nothing is provided. _Optional. The default is na._ 
+  </Property>
+  <Property name="returns" type="string">
+    A string value.
+  </Property>
+</Properties>
+
+---
+
+## changeF()
+
+Get formatted change or change percent of all the keys. (main - alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="percent" type="bool">
+    Set to true to get change percent values instead. _Optional. The default is false._ 
+  </Property>
+  <Property name="format" type="na">
+    A custom format. Uses a default format, if nothing is provided. _Optional. The default is na._ 
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## pkChangeF()
+
+Get all formatted change or change percent of a primary key. (main - alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="percent" type="bool">
+    Set to true to get change percent values instead. _Optional. The default is false._ 
+  </Property>
+  <Property name="format" type="na">
+    A custom format. Uses a default format, if nothing is provided. _Optional. The default is na._ 
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## dkChangeF()
+
+Get all formatted change or change percent of a data key. (main - alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="percent" type="bool">
+    Set to true to get change percent values instead. _Optional. The default is false._ 
+  </Property>
+  <Property name="format" type="na">
+    A custom format. Uses a default format, if nothing is provided. _Optional. The default is na._ 
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## timestampChange()
+
+Get segmented time difference for the specified key(s). (main - alt)
+
+<Properties>
+  <Property name="this" type="object">
+    A data2d or a data3d object.
+  </Property>
+  <Property name="key" type="string">
+    A key identifier. This parameter is only available with data2d object; not available for data3d.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key. This parameter is only available with data3d object; not available for data2d.
+  </Property>
+  <Property name="years" type="bool">
+    Switch to turn on/off the years segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="months" type="bool">
+    Switch to turn on/off the months segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="weeks" type="bool">
+    Switch to turn on/off the weeks segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="days" type="bool">
+    Switch to turn on/off the days segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="hours" type="bool">
+    Switch to turn on/off the hours segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="minutes" type="bool">
+    Switch to turn on/off the minutes segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="seconds" type="bool">
+    Switch to turn on/off the seconds segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="returns" type="string">
+    A string value.
+  </Property>
+</Properties>
+
+---
+
+## timestampChange()
+
+Get segmented time difference of all the keys. (main - alt)
+
+<Properties>
+  <Property name="this" type="data2d">
+    A data2d object.
+  </Property>
+  <Property name="years" type="bool">
+    Switch to turn on/off the years segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="months" type="bool">
+    Switch to turn on/off the months segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="weeks" type="bool">
+    Switch to turn on/off the weeks segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="days" type="bool">
+    Switch to turn on/off the days segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="hours" type="bool">
+    Switch to turn on/off the hours segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="minutes" type="bool">
+    Switch to turn on/off the minutes segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="seconds" type="bool">
+    Switch to turn on/off the seconds segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## pkTimestampChange()
+
+Get all segmented time difference of a primary key. (main - alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="primaryKey" type="string">
+    A data3d primary key.
+  </Property>
+  <Property name="years" type="bool">
+    Switch to turn on/off the years segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="months" type="bool">
+    Switch to turn on/off the months segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="weeks" type="bool">
+    Switch to turn on/off the weeks segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="days" type="bool">
+    Switch to turn on/off the days segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="hours" type="bool">
+    Switch to turn on/off the hours segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="minutes" type="bool">
+    Switch to turn on/off the minutes segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="seconds" type="bool">
+    Switch to turn on/off the seconds segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
+
+---
+
+## dkTimestampChange()
+
+Get all segmented time difference of a data key. (main - alt)
+
+<Properties>
+  <Property name="this" type="data3d">
+    A data3d object.
+  </Property>
+  <Property name="dataKey" type="string">
+    A data3d data key.
+  </Property>
+  <Property name="years" type="bool">
+    Switch to turn on/off the years segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="months" type="bool">
+    Switch to turn on/off the months segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="weeks" type="bool">
+    Switch to turn on/off the weeks segment. Off by default. _Optional. The default is false._
+  </Property>
+  <Property name="days" type="bool">
+    Switch to turn on/off the days segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="hours" type="bool">
+    Switch to turn on/off the hours segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="minutes" type="bool">
+    Switch to turn on/off the minutes segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="seconds" type="bool">
+    Switch to turn on/off the seconds segment. On by default. _Optional. The default is true._
+  </Property>
+  <Property name="returns" type="array<string>">
+    A string array.
+  </Property>
+</Properties>
