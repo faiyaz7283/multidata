@@ -1,0 +1,2710 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © faiyaz7283
+
+//@version=5
+
+// @description A library for multi-dimensional data arrays.
+library("multidata", overlay=true)
+
+// Imports
+import faiyaz7283/tools/3 as tools
+
+var ALT_ERROR 		= "Wrong data type is being used to set altVal. The altVal must match the original val type of "
+var SET_ERROR 		= "Wrong data type is being used to set value. The value must match the original value type of "
+var DK_PUSH_ERROR 	= "Total data key value missmatch. There must be a total of {0} new data key values, {1} provided."
+
+// { Custom Key & Value Objects:
+
+// Define `val` - A value storage. Allowed data types are string, float, int, bool.
+// stringValue	(string) A string value. Also, color values are converted and stored as string values. (`na` is used if no argument is supplied).
+// floatValue	(string) A float value. (`na` is used if no argument is supplied). 
+// intValue		(string) An integer value. Both regular integer values as well as unix timestamp values (milliseconds), are stored as integer values. (`na` is used if no argument is supplied). 
+// boolValue	(string) A boolean value. (`na` is used if no argument is supplied).
+export type val
+	string stringValue = na
+	float floatValue = na
+	int intValue = na
+	bool boolValue = na
+
+// Define `kv` - A key value pair storage.
+// key 				(string) The key identifier.
+// val 				(val) A value represented by the val object. Must contain one of the val properties: val.stringValue, val.floatValue, val.intValue, or val.boolValue.
+// altVal 			(val) An alternate value represented by the val object. Must contain one of the val properties: val.stringValue, val.floatValue, val.intValue, or val.boolValue. (`na` is used if no argument is supplied).
+// format			(string) A custom string format for the val object. (`na` is used if no argument is supplied).
+// dataType			(string) The data type for the value. Possible values are string, float, int, bool, color, and timestamp. (`na` is used if no argument is supplied). 
+// value			(string) The string version of the original value. (`na` is used if no argument is supplied).
+// altValue			(string) The string version of the original alt value. (`na` is used if no argument is supplied).
+// formatValue		(string) The formatted version of the original value. If no format is available, just uses string version.. (`na` is used if no argument is supplied). 
+// formatAltValue	(string) The formatted version of the alternate value. If no format is available, just uses string version. (`na` is used if no argument is supplied). 
+// timezone			(string) A custom timezone for the value. Applies only for timestamp data types. (`na` is used if no argument is supplied).
+// _tz				(bool) An internal switch to determine if custom timezone is set for this object. (`false` is used if no argument is supplied).
+export type kv
+	string key
+	val val
+	val altVal = na
+	string format = na
+	string dataType = na
+	string value = na
+	string altValue = na
+	string formatValue = na
+	string formatAltValue = na
+	string timezone = na
+	bool _tz = false
+
+// Define `pkv` - A primary key value pair storage.
+// primaryKey 	(string) The primary key identifier.
+// dataKeys 	(array<string>) An array of data key identifiers.
+// dataKeyTypes (array<string>) An array of data types asscociated with the object's data keys.
+// kvs 			(array<kv>) An array of kv objects. They must adhere to this objects data keys and data key types.
+export type pkv
+	string primaryKey
+	array<string> dataKeys
+	array<string> dataKeyTypes
+	array<kv> kvs
+
+
+// }
+
+// { kv() and alt() methods:
+
+// @function    	The kv() method is utilized to construct a kv object. This method systematically constructs the kv object, ensuring that all of its properties are properly satisfied.
+// @param this		(string) A string object, representing a unique key identifier.
+// @param val		Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+// @param altVal	Any object of data type string, float, integer (including Unix timestamp), boolean and color. (`na` is used if no argument is supplied).
+// @param timestamp	(bool) A boolean A boolean flag to indicate if the integer value is of timestamp data type. Use true for timestamp values. This parameter is only available with integer values (includes timestamps); for all other cases, not available. (`na` is used if no argument is supplied).
+// @param timezone	(string) A string representing timezone in UTC/GMT notation (e.g., "UTC-5", "GMT+0530") or as an IANA time zone database name (e.g., "America/New_York"). This parameter is only available with integer values (includes timestamps); for all other cases, not available. (`na` is used if no argument is supplied).
+// @param format	(string) A custom format. (`na` is used if no argument is supplied).
+// @returns  		(kv) The `kv` object.
+export method kv(string this, int val, int altVal=na, bool timestamp=na, string timezone=na, string format=na) =>
+	strVl = tools._str(val)
+	strAvl = not na(altVal) ? tools._str(altVal) : na
+	_timestamp = not na(timestamp) ? timestamp : false
+	_timezone = not na(timezone) ? timezone : syminfo.timezone
+	_tz = not na(timezone) ? true : false
+	vl = val.new(intValue = val)
+	avl = val.new(intValue = altVal)
+	vt = _timestamp ? "timestamp" : "int"
+	frmtVal = na(format) ? strVl : (_timestamp ? str.format_time(val, format, _timezone) : str.format(format, val))
+	frmtAltValue = (not na(altVal) and not na(format)) ? (_timestamp ? str.format_time(altVal, format, _timezone) : str.format(format, altVal)) : strAvl
+	kv.new(this, vl, avl, format, vt, strVl, strAvl, frmtVal, frmtAltValue, timezone, _tz)
+
+export method kv(string this, string val, string altVal=na, string format=na) =>
+	vl = val.new(stringValue = val)
+	avl = val.new(stringValue = altVal)
+	frmtValue = not na(format) ? str.format(format, val) : val
+	frmtAltValue = not na(format) ? str.format(format, altVal) : altVal
+	kv.new(this, vl, avl, format, "string", val, altVal, frmtValue, frmtAltValue)
+
+export method kv(string this, float val, float altVal=na, string format=na) =>
+	strVl = tools._str(val)
+	strAvl = tools._str(altVal)
+	vl = val.new(floatValue = val)
+	avl = val.new(floatValue = altVal)
+	frmtValue = not na(format) ? str.format(format, val) : strVl
+	frmtAltValue = not na(format) ? str.format(format, altVal) : strAvl
+	kv.new(this, vl, avl, format, "float", strVl, strAvl, frmtValue, frmtAltValue)
+
+export method kv(string this, bool val, bool altVal=na, string format=na) =>
+	strVl = tools._str(val)
+	strAvl = tools._str(altVal)
+	vl = val.new(boolValue = val)
+	avl = val.new(boolValue = altVal)
+	frmtValue = not na(format) ? str.format(format, strVl) : strVl
+	frmtAltValue = not na(format) ? str.format(format, strAvl) : strAvl
+	kv.new(this, vl, avl, format, "bool", strVl, strAvl, frmtValue, frmtAltValue)
+
+export method kv(string this, color val, color altVal=na, string format=na) =>
+	strVl = tools._str(val)
+	strAvl = tools._str(altVal)
+	vl = val.new(stringValue = strVl)
+	avl = val.new(stringValue = strAvl)
+	frmtValue = not na(format) ? str.format(format, strVl) : strVl
+	frmtAltValue = not na(format) ? str.format(format, strAvl) : strAvl
+	kv.new(this, vl, avl, format, "color", strVl, strAvl, frmtValue, frmtAltValue)
+
+// @function    	Set alternate value for a `kv` object.
+// @param this		(kv) A `kv` object.
+// @param altVal	An object of type string, float, integer (including Unix timestamp), boolean, or color. It must match the data type of the kv object.
+// @returns  		(kv) This `kv` object.
+export method alt(kv this, int altVal) =>
+	if this.dataType != "int" and this.dataType != "timestamp"
+		runtime.error(ALT_ERROR + "'" + this.dataType + "'.")
+	
+	strAvl = tools._str(altVal)
+	this.altVal := val.new(intValue = altVal)
+	this.altValue := strAvl
+
+	if this.dataType == "int"
+		this.formatAltValue := not na(this.format) ? str.format(this.format, altVal) : strAvl
+	else if this.dataType == "timestamp"
+		this.formatAltValue := not na(this.format) ? str.format_time(altVal, this.format) : strAvl
+	this
+
+export method alt(kv this, string altVal) =>
+	if this.dataType != "string"
+		runtime.error(ALT_ERROR + "'" + this.dataType + "'.")
+	
+	this.altVal := val.new(stringValue = altVal)
+	this.altValue := altVal
+	this.formatAltValue := not na(this.format) ? str.format(this.format, altVal) : altVal
+	this
+
+export method alt(kv this, float altVal) =>
+	if this.dataType != "float"
+		runtime.error(ALT_ERROR + "'" + this.dataType + "'.")
+	
+	strAvl = tools._str(altVal)
+	this.altVal := val.new(floatValue = altVal)
+	this.altValue := strAvl
+	this.formatAltValue := not na(this.format) ? str.format(this.format, altVal) : strAvl
+	this
+
+export method alt(kv this, bool altVal) =>
+	if this.dataType != "bool"
+		runtime.error(ALT_ERROR + "'" + this.dataType + "'.")
+	
+	strAvl = tools._str(altVal)
+	this.altVal := val.new(boolValue = altVal)
+	this.altValue := strAvl
+	this.formatAltValue := not na(this.format) ? str.format(this.format, strAvl) : strAvl
+	this
+
+export method alt(kv this, color altVal) =>
+	if this.dataType != "color"
+		runtime.error(ALT_ERROR + "'" + this.dataType + "'.")
+	
+	strAvl = tools._str(altVal)
+	this.altVal := val.new(stringValue = strAvl)
+	this.altValue := strAvl
+	this.formatAltValue := not na(this.format) ? str.format(this.format, strAvl) : strAvl
+	this
+
+// @function    The pkv() method is utilized to construct a `pkv` object, which is the preferred approach for generating `pkv` object. This method systematically constructs the pkv object, ensuring that all of its properties are properly satisfied.
+// @param this	(string) A string object, representing a unique primary key identifier.
+// @param kvs	(array<kv>) An array of `kv` objects.
+// @returns  	(pkv) A `pkv` object.
+export method pkv(string this, array<kv> kvs) =>
+	dataKeys = array.new<string>()
+	dataKeyTypes = array.new<string>()
+	for kV in kvs
+		dataKeys.push(kV.key)
+		dataKeyTypes.push(kV.dataType)
+	pkv.new(this, dataKeys, dataKeyTypes, kvs)
+
+// }
+
+// { Data2d: 
+
+// Define `data2d` - A two dimensional array of key-value data structure..
+// kvs 					(array<kv>) An array of `kv` objects.
+// keys					(array<string>) An array of key identifiers. (`na` is used if no argument is supplied). 
+// values				(array<string>) An array of converted main string values, formatted if applicable. (`na` is used if no argument is supplied).
+// formatValues			(array<string>) An array of string main values, formatted if applicable. (`na` is used if no argument is supplied).
+// altValues			(array<string>) An array of converted alternate string values, formatted if applicable. (`na` is used if no argument is supplied).
+// formatAltValues		(array<string>) An array of main string values, formatted if applicable. (`na` is used if no argument is supplied).
+// stringValues			(array<string>) An array of main string values. (`na` is used if no argument is supplied).
+// stringAltValues		(array<string>) An array of alternate string values. (`na` is used if no argument is supplied).
+// floatValues			(array<float>) An array of main float values. (`na` is used if no argument is supplied).
+// floatAltValues		(array<float>) An array of alternate float values. (`na` is used if no argument is supplied).
+// intValues			(array<int>) An array of main integer values. (`na` is used if no argument is supplied).
+// intAltValues			(array<int>) An array of alternate integer values. (`na` is used if no argument is supplied).
+// boolValues			(array<bool>) An array of main boolean values. (`na` is used if no argument is supplied).
+// boolAltValues		(array<bool>) An array of alternate boolean values. (`na` is used if no argument is supplied).
+// colorValues			(array<color>) An array of main color values. (`na` is used if no argument is supplied).
+// colorAltValues		(array<color>) An array of alternate color values. (`na` is used if no argument is supplied).
+// timestampValues		(array<int>) An array of main unix timestamp values. (`na` is used if no argument is supplied).
+// timestampAltValues	(array<int>) An array of alternate unix timestamp values. (`na` is used if no argument is supplied).
+// dataType 			(string) The data type representing all keys. Possible values are 'string', 'float', 'int', 'bool', 'color', 'timestamp', or 'mix'. 'mix' (`na` is used if no argument is supplied).
+// size 				(int) Total size of a data2d object. (`na` is used if no argument is supplied).
+// sorted				(bool) A boolean flag to determine if the data2d object is sorted or not. (`na` is used if no argument is supplied).
+// asc					(bool) A boolean flag to determine if sorting is in ascending or descending order. Use 'true' for ascending and 'false' for descending. (`true` is used if no argument is supplied).
+// change				(bool) A boolean flag to determine if sorting uses change percent values. (`false` is used if no argument is supplied).
+// format				(string) A default string format for values. (`na` is used if no argument is supplied).
+// formatTime			(string) A default time format for timestamp values. (`yyyy-MM-dd hh:mm:ss a z` is used if no argument is supplied).
+// index				(array<int>) An array of integer values representing key index. If the object is sorted, the index will be in sorted order. (`na` is used if no argument is supplied).
+// timezone				(string) A default timezone value for the data2d object. (`syminfo.timezone` is used if no argument is supplied).
+export type data2d
+	array<kv> kvs
+	array<string> keys = na
+	array<string> values = na
+	array<string> formatValues = na
+	array<string> altValues = na
+	array<string> formatAltValues = na
+	array<string> stringValues = na
+	array<string> stringAltValues = na
+	array<float> floatValues = na
+	array<float> floatAltValues = na
+	array<int> intValues = na
+	array<int> intAltValues = na
+	array<bool> boolValues = na
+	array<bool> boolAltValues = na
+	array<color> colorValues = na
+	array<color> colorAltValues = na
+	array<int> timestampValues = na
+	array<int> timestampAltValues = na
+	string dataType = na
+	int size = na
+	bool sorted = na
+	bool asc = true
+	bool change = false
+	string format = na
+	string formatTime = "yyyy-MM-dd hh:mm:ss a z"
+	array<int> index = na
+	string timezone = syminfo.timezone
+ 
+// }
+
+// { Data3d:
+
+// Define `data3d` - A three dimensional array of primarykey-datakey-value data structure.
+// data					(array<data2d>) An array of `data2d` objects.
+// primaryKeys			(array<string>) An array of primary key identifiers. (`na` is used if no argument is supplied). 
+// dataKeys				(array<string>) An array of data key identifiers. (`na` is used if no argument is supplied). 
+// dataTypes 			(array<string>) An array of data types for each data keys. (`na` is used if no argument is supplied).
+// dataType 			(string) The data type representing all data keys. Possible values are string, float, int, bool, color, timestamp, or mix. (`na` is used if no argument is supplied).
+// size 				(int) Total size of the data3d object. (`na` is used if no argument is supplied).
+// sorted				(bool) A boolean flag to determine if the data3d object is sorted or not.  (`na` is used if no argument is supplied).
+// sortByKey			(string) The data key used for sorting the data3d object.  (`na` is used if no argument is supplied).
+// asc					(bool) A boolean flag to determine if sorting in ascending or descending order. Use true for ascending, and false for descending. (`true` is used if no argument is supplied).
+// change				(bool) A boolean flag to determine if sorting uses change percent values. (`false` is used if no argument is supplied).
+// format				(string) A default string format for values. (`na` is used if no argument is supplied).
+// formatTime			(string) A default time format for timestamp values. (`yyyy-MM-dd hh:mm:ss a z` is used if no argument is supplied).
+// index				(array<int>) An array of integer values representing primary key index. If the object is sorted, the index will be in sorted order. (`na` is used if no argument is supplied).
+// timezone				(string) A default timezone value for the data3d object. (`syminfo.timezone` is used if no argument is supplied).
+export type data3d
+	array<data2d> data
+	array<string> primaryKeys = na
+	array<string> dataKeys = na
+	array<string> dataKeyTypes = na
+	string dataType = na
+	int size = na
+	bool sorted = na
+	string sortByKey = na
+	bool asc = true
+	bool change = false
+	string format = na
+	string formatTime = "yyyy-MM-dd hh:mm:ss a z"
+	array<int> index = na
+	string timezone = syminfo.timezone
+
+// }
+
+// { Get keys and values: 
+
+// @function For *INTERNAL* use only.
+__keyExist(data2d this, string key) =>
+	idx = this.keys.indexof(key)
+	exist = false
+	if idx != -1
+		exist := true
+	[idx, exist]
+		
+// @function For *INTERNAL* use only.
+__dataKeyExist(data3d this, string key) =>
+	idx = this.dataKeys.indexof(key)
+	exist = false
+	if idx != -1
+		exist := true
+	[idx, exist]
+
+// @function For *INTERNAL* use only.
+__primaryKeyExist(data3d this, string key) =>
+	idx = this.primaryKeys.indexof(key)
+	exist = false
+	if idx != -1
+		exist := true
+	[idx, exist]
+
+// @function For *INTERNAL* use only.
+__existErrorCheck(bool exist, string key) =>
+	if not exist
+		runtime.error(str.format('Key "{0}" does not exist.', key))
+
+// @function    Get all the keys. Maintains sort order, if applicable. 
+// @param this	(data2d) The `data2d` object.
+// @returns  	(array<string>) All keys of a data2d object.
+export method keys(data2d this) =>
+	keys = this.keys
+	result = keys
+	if this.sorted
+		result := array.new<string>()
+		for i in this.index
+			result.push(keys.get(i))
+	result
+
+// @function    Get all the primary keys. Maintains sort order, if applicable.
+// @param this	(data3d) The `data3d` object.
+// @returns  	(array<string>) All primary keys of a data3d object.
+export method primaryKeys(data3d this) =>
+	pks = this.primaryKeys
+	result = pks
+	if this.sorted
+		result := array.new<string>()
+		for i in this.index
+			result.push(pks.get(i))
+	result
+
+// @function    Get all the data keys.
+// @param this	(data3d) The `data3d` object.
+// @returns  	(array<string>) All data keys of a data3d object.
+export method dataKeys(data3d this) =>
+	this.dataKeys
+
+// @function    	Get all values in string representation. Formatted and sorted, if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<string>) All values from the data2d object.
+export method values(data2d this, bool alt=false) =>
+	vals = alt ? this.formatAltValues : this.formatValues
+	result = vals
+	if this.sorted
+		result := array.new<string>()
+		for i in this.index
+			result.push(vals.get(i))
+	result
+
+// @function    		Get all values from the primary key in string representation. Formatted and sorted, if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param alt			(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  			(array<string>) Primary key values.
+export method pkValues(data3d this, string primaryKey, bool alt=false) =>
+	[idx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2d = this.data.get(idx)
+	alt ? d2d.formatAltValues : d2d.formatValues
+
+// @function    	Get all values from the data key in string representation. Formatted, if applicable.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<string>) Datqa key values.
+export method dkValues(data3d this, string dataKey, bool alt=false) =>
+	[idx, exist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(exist, dataKey)
+	vals = array.new<string>()
+	d3dIdx = this.index
+	for _idx in d3dIdx
+		d2d = this.data.get(_idx)
+		if alt
+			vals.push(d2d.formatAltValues.get(idx))
+		else
+			vals.push(d2d.formatValues.get(idx))
+	vals
+
+// @function    	Get all string values. Sorted, if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<string>) All string values from the data2d object.
+export method stringValues(data2d this, bool alt=false) =>
+	vals = alt ? this.stringAltValues : this.stringValues
+	result = vals
+	if this.sorted
+		result := array.new<string>()
+		for i in this.index
+			result.push(vals.get(i))
+	result
+
+// @function    		Get all string values from the primary key. Sorted, if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param alt			(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  			(array<string>) Primary key string values from the data3d object.
+export method pkStringValues(data3d this, string primaryKey, bool alt=false) =>
+	[idx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2d = this.data.get(idx)
+	alt ? d2d.stringAltValues : d2d.stringValues
+
+// @function    	Get all string values from the data key.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<string>) Primary key string values from the data3d object.
+export method dkStringValues(data3d this, string dataKey, bool alt=false) =>
+	[idx, exist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(exist, dataKey)
+	vals = array.new<string>()
+	d3dIdx = this.index
+	for _idx in d3dIdx
+		d2d = this.data.get(_idx)
+		if alt
+			vals.push(d2d.stringAltValues.get(idx))
+		else
+			vals.push(d2d.stringValues.get(idx))
+	vals
+
+// @function    	Get all float values. Sorted, if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<float>) All float values from the data2d object.
+export method floatValues(data2d this, bool alt=false) =>
+	vals = alt ? this.floatAltValues : this.floatValues
+	result = vals
+	if this.sorted
+		result := array.new<float>()
+		for i in this.index
+			result.push(vals.get(i))
+	result
+
+// @function    		Get all float values from the primary key. Sorted, if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param alt			(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  			(array<float>) Primary key float values from the data3d object.
+export method pkFloatValues(data3d this, string primaryKey, bool alt=false) =>
+	[idx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2d = this.data.get(idx)
+	alt ? d2d.floatAltValues : d2d.floatValues
+
+// @function    	Get all float values from the data key.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<float>) Primary key float values from the data3d object.
+export method dkFloatValues(data3d this, string dataKey, bool alt=false) =>
+	[idx, exist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(exist, dataKey)
+	vals = array.new<float>()
+	d3dIdx = this.index
+	for _idx in d3dIdx
+		d2d = this.data.get(_idx)
+		if alt
+			vals.push(d2d.floatAltValues.get(idx))
+		else
+			vals.push(d2d.floatValues.get(idx))
+	vals
+
+// @function    	Get all integer values. Sorted, if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<int>) All integer values from the data2d object.
+export method intValues(data2d this, bool alt=false) =>
+	vals = alt ? this.intAltValues : this.intValues
+	result = vals
+	if this.sorted
+		result := array.new<int>()
+		for i in this.index
+			result.push(vals.get(i))
+	result
+
+// @function    		Get all integer values from the primary key. Sorted, if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param alt			(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  			(array<int>) Primary key integer values from the data3d object.
+export method pkIntValues(data3d this, string primaryKey, bool alt=false) =>
+	[idx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2d = this.data.get(idx)
+	alt ? d2d.intAltValues : d2d.intValues
+
+// @function    	Get all integer values from the data key.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<int>) Primary key integer values from the data3d object.
+export method dkIntValues(data3d this, string dataKey, bool alt=false) =>
+	[idx, exist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(exist, dataKey)
+	vals = array.new<int>()
+	d3dIdx = this.index
+	for _idx in d3dIdx
+		d2d = this.data.get(_idx)
+		if alt
+			vals.push(d2d.intAltValues.get(idx))
+		else
+			vals.push(d2d.intValues.get(idx))
+	vals
+
+// @function    	Get all boolean values. Sorted, if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<bool>) All boolean values from the data2d object.
+export method boolValues(data2d this, bool alt=false) =>
+	alt ? this.boolAltValues : this.boolValues
+
+// @function    		Get all boolean values from the primary key. Sorted, if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param alt			(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  			(array<bool>) Primary key boolean values from the data3d object.
+export method pkBoolValues(data3d this, string primaryKey, bool alt=false) =>
+	[idx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2d = this.data.get(idx)
+	alt ? d2d.boolAltValues : d2d.boolValues
+
+// @function    	Get all boolean values from the data key.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<bool>) Primary key boolean values from the data3d object.
+export method dkBoolValues(data3d this, string dataKey, bool alt=false) =>
+	[idx, exist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(exist, dataKey)
+	vals = array.new<bool>()
+	d3dIdx = this.index
+	for _idx in d3dIdx
+		d2d = this.data.get(_idx)
+		if alt
+			vals.push(d2d.boolAltValues.get(idx))
+		else
+			vals.push(d2d.boolValues.get(idx))
+	vals
+
+// @function    	Get all color values. Sorted, if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<color>) All color values from the data2d object.
+export method colorValues(data2d this, bool alt=false) =>
+	alt ? this.colorAltValues : this.colorValues
+
+// @function    		Get all color values from the primary key. Sorted, if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param alt			(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  			(array<color>) Primary key color values from the data3d object.
+export method pkColorValues(data3d this, string primaryKey, bool alt=false) =>
+	[idx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2d = this.data.get(idx)
+	alt ? d2d.colorAltValues : d2d.colorValues
+
+// @function    	Get all color values from the data key.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<color>) Primary key color values from the data3d object.
+export method dkColorValues(data3d this, string dataKey, bool alt=false) =>
+	[idx, exist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(exist, dataKey)
+	vals = array.new<color>()
+	d3dIdx = this.index
+	for _idx in d3dIdx
+		d2d = this.data.get(_idx)
+		if alt
+			vals.push(d2d.colorAltValues.get(idx))
+		else
+			vals.push(d2d.colorValues.get(idx))
+	vals
+
+// @function    	Get all unix timestamp values. Sorted, if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<int>) All Unix timestamp values from the data2d object.
+export method timestampValues(data2d this, bool alt=false) =>
+	vals = alt ? this.timestampAltValues : this.timestampValues
+	result = vals
+	if this.sorted
+		result := array.new<int>()
+		for i in this.index
+			result.push(vals.get(i))
+	result
+
+// @function    		Get all unix timestamp values from the primary key. Sorted, if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param alt			(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  			(array<int>) Primary key timestamp values from the data3d object.
+export method pkTimestampValues(data3d this, string primaryKey, bool alt=false) =>
+	[idx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2d = this.data.get(idx)
+	alt ? d2d.timestampAltValues : d2d.timestampValues
+
+// @function    	Get all unix timestamp values from the data key.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param alt		(bool) Set to true to obtain the alternate values instead. (`false` is used if no argument is supplied).
+// @returns  		(array<int>) Primary key timestamp values from the data3d object.
+export method dkTimestampValues(data3d this, string dataKey, bool alt=false) =>
+	[idx, exist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(exist, dataKey)
+	vals = array.new<int>()
+	d3dIdx = this.index
+	for _idx in d3dIdx
+		d2d = this.data.get(_idx)
+		if alt
+			vals.push(d2d.timestampAltValues.get(idx))
+		else
+			vals.push(d2d.timestampValues.get(idx))
+	vals
+
+// }
+
+// { Get, getString, getFloat, getInt, getBool, getColor, getTimestamp
+
+// @function    	Get string value from a specific key, formatted if applicable.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(string) A string value or `na` if not found.
+export method get(data2d this, string key, bool alt=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	alt ? this.formatAltValues.get(idx) : this.formatValues.get(idx)
+
+// @function    		Get string value from a specific primary and data key, formatted if applicable.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param alt			(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			(string) A string value or `na` if not found.
+export method get(data3d this, string primaryKey, string dataKey, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	alt ? d2d.formatAltValues.get(dkIdx) : d2d.formatValues.get(dkIdx)
+
+// @function    	Get string value from a specific key.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(string) A string value or `na` if not found.
+export method getString(data2d this, string key, bool alt=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	alt ? this.stringAltValues.get(idx) : this.stringValues.get(idx)
+
+// @function    		Get string value from a specific primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param alt			(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			(string) A string value or `na` if not found.
+export method getString(data3d this, string primaryKey, string dataKey, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	alt ? d2d.stringAltValues.get(dkIdx) : d2d.stringValues.get(dkIdx)
+
+// @function    	Get float value from a specific key.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(float) A float value or `na` if not found.
+export method getFloat(data2d this, string key, bool alt=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	alt ? this.floatAltValues.get(idx) : this.floatValues.get(idx)
+
+// @function    		Get float value from a specific primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param alt			(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			(float) A float value or `na` if not found.
+export method getFloat(data3d this, string primaryKey, string dataKey, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	alt ? d2d.floatAltValues.get(dkIdx) : d2d.floatValues.get(dkIdx)
+
+// @function    	Get integer value from a specific key.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(int) An integer value or `na` if not found.
+export method getInt(data2d this, string key, bool alt=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	alt ? this.intAltValues.get(idx) : this.intValues.get(idx)
+
+// @function    		Get integer value from a specific primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param alt			(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			(int) An integer value or `na` if not found.
+export method getInt(data3d this, string primaryKey, string dataKey, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	alt ? d2d.intAltValues.get(dkIdx) : d2d.intValues.get(dkIdx)
+
+// @function    	Get boolean value from a specific key.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(bool) A bool value or `na` if not found.
+export method getBool(data2d this, string key, bool alt=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	alt ? this.boolAltValues.get(idx) : this.boolValues.get(idx)
+
+// @function    		Get boolean value from a specific primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param alt			(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			(bool) A boolean value or `na` if not found.
+export method getBool(data3d this, string primaryKey, string dataKey, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	alt ? d2d.boolAltValues.get(dkIdx) : d2d.boolValues.get(dkIdx)
+
+// @function    	Get color value from a specific key.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(color) A color value or `na` if not found.
+export method getColor(data2d this, string key, bool alt=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	alt ? this.colorAltValues.get(idx) : this.colorValues.get(idx)
+
+// @function    		Get color value from a specific primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param alt			(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			(color) A color value or `na` if not found.
+export method getColor(data3d this, string primaryKey, string dataKey, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	alt ? d2d.colorAltValues.get(dkIdx) : d2d.colorValues.get(dkIdx)
+
+// @function    	Get unix timestamp value from a specific key.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(int) A unix timestamp value or `na` if not found.
+export method getTimestamp(data2d this, string key, bool alt=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	alt ? this.timestampAltValues.get(idx) : this.timestampValues.get(idx)
+
+// @function    		Get unix timestamp value from a specific primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param alt			(bool) Use true to get the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			(int) A unix timestamp value or `na` if not found.
+export method getTimestamp(data3d this, string primaryKey, string dataKey, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	alt ? d2d.timestampAltValues.get(dkIdx) : d2d.timestampValues.get(dkIdx)
+
+// }
+
+// { Includes
+
+// @function    	Check if value is included.
+// @param this		(data2d) The `data2d` object.
+// @param value		Any object of data type string, float, integer (including Unix timestamp), boolean and color.
+// @param alt		(bool) Use true for checking alternate values, false for main values. (`false` is used if no argument is supplied).
+// @returns  		(bool) True if value is found, false otherwise.
+export method includes(data2d this, string value, bool alt=false) =>
+	result = false
+	if this.dataType == "string"
+		result := alt ? this.stringAltValues.includes(value) : this.stringValues.includes(value)
+	else
+		result := alt ? this.altValues.includes(value) : this.values.includes(value)
+	result
+
+export method includes(data2d this, float value, bool alt=false) =>
+	alt ? this.floatAltValues.includes(value) : this.floatValues.includes(value)
+
+export method includes(data2d this, int value, bool alt=false) =>
+	result = false
+	if this.dataType == "timestamp" 
+		result := alt ? this.timestampAltValues.includes(value) : this.timestampValues.includes(value)
+	else if this.dataType == "int"
+		result := alt ? this.intAltValues.includes(value) : this.intValues.includes(value)
+	else
+		_val = tools._str(value)
+		result := alt ? this.altValues.includes(_val) : this.values.includes(_val)
+	result
+
+export method includes(data2d this, color value, bool alt=false) =>
+	alt ? this.colorAltValues.includes(value) : this.colorValues.includes(value)
+
+export method includes(data2d this, bool value, bool alt=false) =>
+	alt ? this.boolAltValues.includes(value) : this.boolValues.includes(value)
+
+// @function For *INTERNAL* use only.
+__pkIncludes(data3d this, string primaryKey, value, bool alt) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	this.data.get(pkIdx).includes(value, alt)
+
+// @function    		Check if a value is included in a primary key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param value			The value used for searching.
+// @param alt			(bool) Use true for checking alternate values, false for main values. (`false` is used if no argument is supplied).
+// @returns  			(bool) True if value is found, false otherwise.
+export method pkIncludes(data3d this, string primaryKey, string value, bool alt=false) =>
+	__pkIncludes(this, primaryKey, value, alt)
+
+export method pkIncludes(data3d this, string primaryKey, float value, bool alt=false) =>
+	__pkIncludes(this, primaryKey, value, alt)
+
+export method pkIncludes(data3d this, string primaryKey, int value, bool alt=false) =>
+	__pkIncludes(this, primaryKey, value, alt)
+
+export method pkIncludes(data3d this, string primaryKey, bool value, bool alt=false) =>
+	__pkIncludes(this, primaryKey, value, alt)
+
+export method pkIncludes(data3d this, string primaryKey, color value, bool alt=false) =>
+	__pkIncludes(this, primaryKey, value, alt)
+
+// @function    	Check if a value is included in a data key.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(string) The data key.
+// @param value		The value used for searching.
+// @param alt		(bool) Use true for checking alternate values, false for main values. (`false` is used if no argument is supplied).
+// @returns  		(bool) True if value is found, false otherwise.
+export method dkIncludes(data3d this, string dataKey, string value, bool alt=false) =>
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	result = false
+	dkType = this.dataKeyTypes.get(dkIdx)
+	for d2d in this.data
+		if dkType == "string"
+			_val = alt ? d2d.stringAltValues.get(dkIdx) : d2d.stringValues.get(dkIdx)
+			result := _val == value ? true : false
+		else
+			_val = alt ? d2d.altValues.get(dkIdx) : d2d.values.get(dkIdx)
+			result := _val == value ? true : false
+		if result
+			break
+	result
+
+export method dkIncludes(data3d this, string dataKey, float value, bool alt=false) =>
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	result = false
+	for d2d in this.data
+		_val = alt ? d2d.floatAltValues.get(dkIdx) : d2d.floatValues.get(dkIdx)
+		result := _val == value ? true : false
+		if result
+			break
+	result
+
+export method dkIncludes(data3d this, string dataKey, int value, bool alt=false) =>
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	result = false
+	dkType = this.dataKeyTypes.get(dkIdx)
+	for d2d in this.data
+		if dkType == "timestamp"
+			_val = alt ? d2d.timestampAltValues.get(dkIdx) : d2d.timestampValues.get(dkIdx)
+			result := _val == value ? true : false
+		else
+			_val = alt ? d2d.intAltValues.get(dkIdx) : d2d.intValues.get(dkIdx)
+			result := _val == value ? true : false
+		if result
+			break
+	result
+
+export method dkIncludes(data3d this, string dataKey, bool value, bool alt=false) =>
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	result = false
+	for d2d in this.data
+		_val = alt ? d2d.boolAltValues.get(dkIdx) : d2d.boolValues.get(dkIdx)
+		result := _val == value ? true : false
+		if result
+			break
+	result
+
+export method dkIncludes(data3d this, string dataKey, color value, bool alt=false) =>
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	result = false
+	for d2d in this.data
+		_val = alt ? d2d.colorAltValues.get(dkIdx) : d2d.colorValues.get(dkIdx)
+		result := _val == value ? true : false
+		if result
+			break
+	result
+
+// }
+
+// { Comparison: 
+
+__et(orgVal, altVal) =>
+	// @function For *INTERNAL* use only.
+	tools._bool(orgVal == altVal)
+
+__lte(orgVal, altVal) =>
+	// @function For *INTERNAL* use only.
+	tools._bool(orgVal <= altVal)
+
+__lt(orgVal, altVal) =>
+	// @function For *INTERNAL* use only.
+	tools._bool(orgVal < altVal)
+
+__gte(orgVal, altVal) =>
+	// @function For *INTERNAL* use only.
+	tools._bool(orgVal >= altVal)
+
+__gt(orgVal, altVal) =>
+	// @function For *INTERNAL* use only.
+	tools._bool(orgVal > altVal)
+
+__compare(orgVal, altVal, string compare) =>
+	// @function For *INTERNAL* use only.
+	bool result = na
+	if compare == 'et'
+		result := __et(orgVal, altVal)
+	else if compare == 'lte'
+		result := __lte(orgVal, altVal)
+	else if compare == 'lt'
+		result := __lt(orgVal, altVal)
+	else if compare == 'gte'
+		result := __gte(orgVal, altVal)
+	else if compare == 'gt'
+		result := __gt(orgVal, altVal)
+	result
+
+__getStringVal(data2d this, int idx) =>
+	// @function For *INTERNAL* use only.
+	[this.stringValues.get(idx), this.stringAltValues.get(idx)]
+
+__getFloatVal(data2d this, int idx) =>
+	// @function For *INTERNAL* use only.
+	[this.floatValues.get(idx), this.floatAltValues.get(idx)]
+
+__getIntVal(data2d this, int idx) =>
+	// @function For *INTERNAL* use only.
+	[this.intValues.get(idx), this.intAltValues.get(idx)]
+
+__getTimestampVal(data2d this, int idx) =>
+	// @function For *INTERNAL* use only.
+	[this.timestampValues.get(idx), this.timestampAltValues.get(idx)]
+
+__comparison(data2d this, int idx, string compare) =>
+	// @function For *INTERNAL* use only.
+	bool result = na
+	keyType = this.kvs.get(idx).dataType
+	if keyType == 'float'
+		[orgVal, altVal] = __getFloatVal(this, idx)
+		if not na(altVal)
+			result := __compare(orgVal, altVal, compare)
+	else if keyType == 'int'
+		[orgVal, altVal] = __getIntVal(this, idx)
+		if not na(altVal)
+			result := __compare(orgVal, altVal, compare)
+	else if keyType == 'timestamp'
+		[orgVal, altVal] = __getTimestampVal(this, idx)
+		if not na(altVal)
+			result := __compare(orgVal, altVal, compare)
+	else if keyType == 'string'
+		[orgVal, altVal] = __getStringVal(this, idx)
+		if not na(altVal)
+			if compare == 'et'
+				result := __et(orgVal, altVal)
+			else
+				result := __compare(str.length(orgVal), str.length(altVal), compare)
+	result
+
+__comparison(data2d this, string compare) =>
+	// @function For *INTERNAL* use only.
+	result = array.new<bool>()
+	for key in this.keys()
+		idx = this.keys.indexof(key)
+		result.push(__comparison(this, idx, compare))
+	result
+
+__change(orgVal, altVal, bool percent) =>
+	// @function For *INTERNAL* use only.
+	result = orgVal - altVal
+	if percent
+		result := result / altVal * 100
+	result
+
+__getChange(data2d this, int idx, bool percent) =>
+	// @function For *INTERNAL* use only.
+	float result = na
+	keyType = this.kvs.get(idx).dataType
+	if keyType == 'float'
+		[orgVal, altVal] = __getFloatVal(this, idx)
+		if not na(altVal)
+			result := __change(orgVal, altVal, percent)
+	else if keyType == 'int'
+		[orgVal, altVal] = __getIntVal(this, idx)
+		if not na(altVal)
+			result := __change(orgVal, altVal, percent)
+	else if keyType == 'timestamp'
+		[orgVal, altVal] = __getTimestampVal(this, idx)
+		if not na(altVal)
+			result := __change(orgVal, altVal, percent)
+	else if keyType == 'string'
+		[orgVal, altVal] = __getStringVal(this, idx)
+		if not na(altVal)
+			result := __change(str.length(orgVal), str.length(altVal), percent)
+	result
+
+__getChange(data2d this, bool percent) =>
+	// @function For *INTERNAL* use only.
+	result = array.new<float>()
+	for key in this.keys()
+		idx = this.keys.indexof(key)
+		result.push(__getChange(this, idx, percent))
+	result
+
+__getChangeF(data2d this, int idx, bool percent, string format) =>
+	// @function For *INTERNAL* use only.
+	keyType = this.kvs.get(idx).dataType
+	_format = format
+	if na(format)
+		if percent
+			_format := "{0,number,0.00}%"
+		else
+			if keyType == "timestamp"
+				[orgVal, altVal] = __getTimestampVal(this, idx)
+				_format := tools._getTimeDifference(orgVal, altVal)
+			else
+				_format := not na(this.format) ? this.format : "{0,number,currency}"
+	str.format(_format, __getChange(this, idx, percent))
+
+__getChangeF(data2d this, bool percent, string format) =>
+	// @function For *INTERNAL* use only.
+	result = array.new<string>()
+	for key in this.keys()
+		idx = this.keys.indexof(key)
+		result.push(__getChangeF(this, idx, percent, format))
+	result
+
+__getTimestampChangeF(data2d this, int idx, bool years, bool months, bool weeks, bool days, bool hours, bool minutes, bool seconds) =>
+	// @function For *INTERNAL* use only.
+	keyType = this.kvs.get(idx).dataType
+	if keyType != 'timestamp'
+		runtime.error("Data type is not a (int) unix timestamp. Only (int) 'timestamp' data type allowed.")
+	[orgVal, altVal] = __getTimestampVal(this, idx)
+	tools._getTimeDifference(orgVal, altVal, years, months, weeks, days, hours, minutes, seconds)
+
+__getTimestampChangeF(data2d this, bool years, bool months, bool weeks, bool days, bool hours, bool minutes, bool seconds) =>
+	// @function For *INTERNAL* use only.
+	result = array.new<string>()
+	for key in this.keys()
+		idx = this.keys.indexof(key)
+		result.push(__getTimestampChangeF(this, idx, years, months, weeks, days, hours, minutes, seconds))
+	result
+
+// @function    		Get change or change percent value of a single key.
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @param percent		(bool) If true, returns the change percent instead of the change. (`false` is used if no argument is supplied).
+// @returns  			(int/float)
+export method change(data2d this, string key, bool percent=false) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__getChange(this, idx, percent)
+
+// @function    		Get the change or change percent value of all the keys.
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @returns  			(array<int>/array<float>) An array of change values.
+export method change(data2d this, bool percent=false) =>
+	__getChange(this, percent)
+
+// @function    		Get the change or change percent value of a single primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @returns  			(int/float)
+export method change(data3d this, string primaryKey, string dataKey, bool percent=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__getChange(d2d, dkIdx, percent)
+
+// @function    		Get the change or change percent value of all the data keys for The primary key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @returns  			(array<int>/array<float>) An array of change values.
+export method pkChange(data3d this, string primaryKey, bool percent=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__getChange(d2d, percent)
+
+// @function    		Get the change or change percent value of all the primary keys for The data key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @returns  			(array<int>/array<float>) An array of change values.
+export method dkChange(data3d this, string dataKey, bool percent=false) =>
+	result = array.new<float>()
+	for pk in this.primaryKeys()
+		result.push(this.change(pk, dataKey, percent))
+	result
+	
+// @function    		Get formatted change or change percent value of a single key.
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @param percent		(bool) If true, returns the change percent instead of the change. (`false` is used if no argument is supplied).
+// @param format		(string) A custom format. (`na` is used if no argument is supplied).
+// @returns  			(string) A change value.
+export method changeF(data2d this, string key, bool percent=false, string format=na) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__getChangeF(this, idx, percent, format)
+
+// @function    		Get formatted change or change percent value of all the keys.
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @param format		(string) A custom format. (`na` is used if no argument is supplied).
+// @returns  			(array<string>) An array of change values.
+export method changeF(data2d this, bool percent=false, string format=na) =>
+	__getChangeF(this, percent, format)
+
+// @function    		Get the change or change percent value of a single primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @param format		(string) A custom format. (`na` is used if no argument is supplied).
+// @returns  			(string) A change value.
+export method changeF(data3d this, string primaryKey, string dataKey, bool percent=false, string format=na) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__getChangeF(d2d, dkIdx, percent, format)
+
+// @function    		Get formatted change or change percent value of all the data keys for The primary key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @param format		(string) A custom format. (`na` is used if no argument is supplied).
+// @returns  			(array<string>) An array of change values.
+export method pkChangeF(data3d this, string primaryKey, bool percent=false, string format=na) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__getChangeF(d2d, percent, format)
+
+// @function    		Get formatted change or change percent value of all the primary keys for The data key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @param percent		(bool) If true, returns the change percent instead of the change.
+// @param format		(string) A custom format. (`na` is used if no argument is supplied).
+// @returns  			(array<string>) An array of change values.
+export method dkChangeF(data3d this, string dataKey, bool percent=false, string format=na) =>
+	result = array.new<string>()
+	for pk in this.primaryKeys()
+		result.push(this.changeF(pk, dataKey, percent, format))
+	result
+
+// @function    		Get segmented time difference value of a single key.
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @param years			Switch to turn on/off the years segment. Off by default. (`false` is used if no argument is supplied).
+// @param months		Switch to turn on/off the months segment. Off by default. (`false` is used if no argument is supplied).
+// @param weeks			Switch to turn on/off the weeks segment. Off by default. (`false` is used if no argument is supplied).
+// @param days			Switch to turn on/off the days segment. On by default. (`true` is used if no argument is supplied).
+// @param hours			Switch to turn on/off the hours segment. On by default. (`true` is used if no argument is supplied).
+// @param minutes		Switch to turn on/off the minutes segment. On by default. (`true` is used if no argument is supplied).
+// @param seconds		Switch to turn on/off the seconds segment. On by default. (`true` is used if no argument is supplied).
+// @returns  			(string) A string value.
+export method timestampChange(data2d this, string key, bool years=false, bool months=false, bool weeks=false, bool days=true, bool hours=true, bool minutes=true, bool seconds=true) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__getTimestampChangeF(this, idx, years, months, weeks, days, hours, minutes, seconds)
+
+// @function    		Get segmented time difference value of all the keys.
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @param years			Switch to turn on/off the years segment. Off by default. (`false` is used if no argument is supplied).
+// @param months		Switch to turn on/off the months segment. Off by default. (`false` is used if no argument is supplied).
+// @param weeks			Switch to turn on/off the weeks segment. Off by default. (`false` is used if no argument is supplied).
+// @param days			Switch to turn on/off the days segment. On by default. (`true` is used if no argument is supplied).
+// @param hours			Switch to turn on/off the hours segment. On by default. (`true` is used if no argument is supplied).
+// @param minutes		Switch to turn on/off the minutes segment. On by default. (`true` is used if no argument is supplied).
+// @param seconds		Switch to turn on/off the seconds segment. On by default. (`true` is used if no argument is supplied).
+// @returns  			(array<string>) A string array.
+export method timestampChange(data2d this, bool years=false, bool months=false, bool weeks=false, bool days=true, bool hours=true, bool minutes=true, bool seconds=true) =>
+	__getTimestampChangeF(this, years, months, weeks, days, hours, minutes, seconds)
+
+// @function    		Get segmented time difference value of a single primary and data key.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param years			Switch to turn on/off the years segment. Off by default. (`false` is used if no argument is supplied).
+// @param months		Switch to turn on/off the months segment. Off by default. (`false` is used if no argument is supplied).
+// @param weeks			Switch to turn on/off the weeks segment. Off by default. (`false` is used if no argument is supplied).
+// @param days			Switch to turn on/off the days segment. On by default. (`true` is used if no argument is supplied).
+// @param hours			Switch to turn on/off the hours segment. On by default. (`true` is used if no argument is supplied).
+// @param minutes		Switch to turn on/off the minutes segment. On by default. (`true` is used if no argument is supplied).
+// @param seconds		Switch to turn on/off the seconds segment. On by default. (`true` is used if no argument is supplied).
+// @returns  			(string) A string value.
+export method timestampChange(data3d this, string primaryKey, string dataKey, bool years=false, bool months=false, bool weeks=false, bool days=true, bool hours=true, bool minutes=true, bool seconds=true) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__getTimestampChangeF(d2d, dkIdx, years, months, weeks, days, hours, minutes, seconds)
+
+// @function    		Get segmented time difference value of all the data keys for The primary key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param years			Switch to turn on/off the years segment. Off by default. (`false` is used if no argument is supplied).
+// @param months		Switch to turn on/off the months segment. Off by default. (`false` is used if no argument is supplied).
+// @param weeks			Switch to turn on/off the weeks segment. Off by default. (`false` is used if no argument is supplied).
+// @param days			Switch to turn on/off the days segment. On by default. (`true` is used if no argument is supplied).
+// @param hours			Switch to turn on/off the hours segment. On by default. (`true` is used if no argument is supplied).
+// @param minutes		Switch to turn on/off the minutes segment. On by default. (`true` is used if no argument is supplied).
+// @param seconds		Switch to turn on/off the seconds segment. On by default. (`true` is used if no argument is supplied).
+// @returns  			(array<string>) A string value.
+export method pkTimestampChange(data3d this, string primaryKey, bool years=false, bool months=false, bool weeks=false, bool days=true, bool hours=true, bool minutes=true, bool seconds=true) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__getTimestampChangeF(d2d, years, months, weeks, days, hours, minutes, seconds)
+
+// @function    		Get segmented time difference value of all the primary keys for The data key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @param years			Switch to turn on/off the years segment. Off by default. (`false` is used if no argument is supplied).
+// @param months		Switch to turn on/off the months segment. Off by default. (`false` is used if no argument is supplied).
+// @param weeks			Switch to turn on/off the weeks segment. Off by default. (`false` is used if no argument is supplied).
+// @param days			Switch to turn on/off the days segment. On by default. (`true` is used if no argument is supplied).
+// @param hours			Switch to turn on/off the hours segment. On by default. (`true` is used if no argument is supplied).
+// @param minutes		Switch to turn on/off the minutes segment. On by default. (`true` is used if no argument is supplied).
+// @param seconds		Switch to turn on/off the seconds segment. On by default. (`true` is used if no argument is supplied).
+// @returns  			(array<string>) A string value.
+export method dkTimestampChange(data3d this, string dataKey, bool years=false, bool months=false, bool weeks=false, bool days=true, bool hours=true, bool minutes=true, bool seconds=true) =>
+	result = array.new<string>()
+	for pk in this.primaryKeys()
+		result.push(this.timestampChange(pk, dataKey, years, months, weeks, days, hours, minutes, seconds))
+	result
+
+// @function    		Get 'et' comparison of a single key. (main == alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(bool) A boolean value or na.
+export method et(data2d this, string key) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__comparison(this, idx, 'et')
+
+// @function    		Get 'et' comparison of all the keys. (main == alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(array<bool>) An array of boolean values.
+export method et(data2d this) =>
+	__comparison(this, 'et')
+
+// @function    		Get 'et' comparison of a single primary and data key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @returns  			(bool) A boolean value or na.
+export method et(data3d this, string primaryKey, string dataKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, dkIdx, 'et')
+
+// @function    		Get 'et' comparison of all the data keys for The primary key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @returns  			(array<bool>) An array of boolean values.
+export method pkEt(data3d this, string primaryKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, 'et')
+
+// @function    		Get 'et' comparison of all the primary keys for The data key. (main == alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @returns  			(array<bool>) An array of boolean values.
+export method dkEt(data3d this, string dataKey) =>
+	result = array.new<bool>()
+	for pk in this.primaryKeys()
+		result.push(et(this, pk, dataKey))
+	result
+
+// @function    		Get 'lte' comparison of a single key. (orginal <= alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(bool) A boolean value or na.
+export method lte(data2d this, string key) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__comparison(this, idx, 'lte')
+
+// @function    		Get 'lte' comparison of all the keys. (orginal <= alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(array<bool>) An array of boolean values.
+export method lte(data2d this) =>
+	__comparison(this, 'lte')
+
+// @function    		Get 'lte' comparison of a single primary and data key. (orginal <= alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @returns  			(bool) A boolean value or na.
+export method lte(data3d this, string primaryKey, string dataKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, dkIdx, 'lte')
+
+// @function    		Get 'lte' comparison of all the data keys for The primary key. (orginal <= alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @returns  			(array<bool>) An array of boolean values.
+export method pkLte(data3d this, string primaryKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, 'lte')
+
+// @function    		Get 'lte' comparison of all the primary keys for The data key. (orginal <= alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @returns  			(array<bool>) An array of boolean values.
+export method dkLte(data3d this, string dataKey) =>
+	result = array.new<bool>()
+	for pk in this.primaryKeys()
+		result.push(lte(this, pk, dataKey))
+	result
+
+// @function    		Get 'lt' comparison of a single key. (orginal < alt)
+// @param this		(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(bool) A boolean value or na.
+export method lt(data2d this, string key) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__comparison(this, idx, 'lt')
+
+// @function    		Get 'lt' comparison of all the keys. (orginal < alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(array<bool>) An array of boolean values.
+export method lt(data2d this) =>
+	__comparison(this, 'lt')
+
+// @function    		Get 'lt' comparison of a single primary and data key. (orginal < alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @returns  			(bool) A boolean value or na.
+export method lt(data3d this, string primaryKey, string dataKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, dkIdx, 'lt')
+
+// @function    		Get 'lt' comparison of all the data keys for The primary key. (orginal < alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @returns  			(array<bool>) An array of boolean values.
+export method pkLt(data3d this, string primaryKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, 'lt')
+
+// @function    		Get 'lt' comparison of all the primary keys for The data key. (orginal < alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @returns  			(array<bool>) An array of boolean values.
+export method dkLt(data3d this, string dataKey) =>
+	result = array.new<bool>()
+	for pk in this.primaryKeys()
+		result.push(lt(this, pk, dataKey))
+	result
+
+// @function    		Get 'gte' comparison of a single key. (orginal >= alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(bool) A boolean value or na.
+export method gte(data2d this, string key) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__comparison(this, idx, 'gte')
+
+// @function    		Get 'gte' comparison of all the keys. (orginal >= alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(array<bool>) An array of boolean values.
+export method gte(data2d this) =>
+	__comparison(this, 'gte')
+
+// @function    		Get 'gte' comparison of a single primary and data key. (orginal >= alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @returns  			(bool) A boolean value or na.
+export method gte(data3d this, string primaryKey, string dataKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, dkIdx, 'gte')
+
+// @function    		Get 'gte' comparison of all the data keys for The primary key. (orginal >= alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @returns  			(array<bool>) An array of boolean values.
+export method pkGte(data3d this, string primaryKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, 'gte')
+
+// @function    		Get 'gte' comparison of all the primary keys for The data key. (orginal >= alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @returns  			(array<bool>) An array of boolean values.
+export method dkGte(data3d this, string dataKey) =>
+	result = array.new<bool>()
+	for pk in this.primaryKeys()
+		result.push(gte(this, pk, dataKey))
+	result
+
+// @function    		Get 'gt' comparison of a single key. (orginal > alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(bool) A boolean value or na.
+export method gt(data2d this, string key) =>
+	[idx, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	__comparison(this, idx, 'gt')
+
+// @function    		Get 'gt' comparison of all the keys. (orginal > alt)
+// @param this			(data2d) The `data2d` object.
+// @param key			(string) The key identifier.
+// @returns  			(array<bool>) An array of boolean values.
+export method gt(data2d this) =>
+	__comparison(this, 'gt')
+
+// @function    		Get 'gt' comparison of a single primary and data key. (orginal > alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @returns  			(bool) A boolean value or na.
+export method gt(data3d this, string primaryKey, string dataKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, dkIdx, 'gt')
+
+// @function    		Get 'gt' comparison of all the data keys for The primary key. (orginal > alt)
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key.
+// @returns  			(array<bool>) An array of boolean values.
+export method pkGt(data3d this, string primaryKey) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	d2d = this.data.get(pkIdx)
+	__comparison(d2d, 'gt')
+
+// @function    		Get 'gt' comparison of all the primary keys for The data key. (orginal > alt)
+// @param this			(data3d) The `data3d` object.
+// @param dataKey		(string) The data key.
+// @returns  			(array<bool>) An array of boolean values.
+export method dkGt(data3d this, string dataKey) =>
+	result = array.new<bool>()
+	for pk in this.primaryKeys()
+		result.push(gt(this, pk, dataKey))
+	result
+
+// }
+
+// { Mechanics: 
+
+// @function    	Set custom format for a `kv` object.
+// @param this		(kv) A `kv` object.
+// @param format	(string) A custom format.
+// @param timezone	(string) A timezone for timestamp value. (`na` is used if no argument is supplied).
+// @returns  		(kv) The `kv` object.
+export method format(kv this, string format, string timezone=na) =>
+	this.format := format
+	alt = tools._bool(this.formatAltValue)
+	string fv = na
+	string afv = na
+
+	switch this.dataType
+		"float" =>
+			fv := str.format(format, this.val.floatValue)
+			afv := alt ? str.format(format, this.altVal.floatValue) : afv
+		"int" =>
+			fv := str.format(format, this.val.intValue)
+			afv := alt ? str.format(format, this.altVal.intValue) : afv
+		"timestamp" =>
+			tz = syminfo.timezone
+			if not na(timezone)
+				this.timezone := timezone
+				this._tz := true
+				tz := timezone
+			else
+				tz := this._tz ? this.timezone : tz
+			fv := str.format_time(this.val.intValue, format, tz)
+			afv := alt ? str.format_time(this.altVal.intValue, format, tz) : afv
+		"bool" =>
+			fv := str.format(format, this.val.boolValue)
+			afv := alt ? str.format(format, this.altVal.boolValue) : afv
+		=>
+			fv := str.format(format, this.val.stringValue)
+			afv := alt ? str.format(format, this.altVal.stringValue) : afv
+	
+	this.formatValue := fv
+	this.formatAltValue := afv
+	this
+
+// @function For *INTERNAL* use only.
+__format(multidata, string format) =>
+	switch multidata.dataType
+		"timestamp" => 
+			multidata.formatTime := format
+		=> 
+			multidata.format := format
+	multidata
+
+// @function    	Set custom format for a multidata object.
+// @param this		A data2d or data3d object.
+// @param format	(string) A custom format.
+// @returns  		This object.
+export method format(data2d this, string format) =>
+	__format(this, format)
+	frmtVals = this.formatValues
+	frmtAltVals = this.formatAltValues
+	for [i,kV] in this.kvs
+		if na(kV.format)
+			tz = kV._tz ? kV.timezone : this.timezone
+			kV.format(format, tz)
+		frmtVals.set(i, kV.formatValue)
+		frmtAltVals.set(i, kV.formatAltValue)
+	this
+
+export method format(data3d this, string format) =>
+	__format(this, format)
+	for data in this.data
+		data.format(format)
+	this
+
+// @function For *INTERNAL* use only.
+__index(multidata) =>
+	size = multidata.size
+	index = array.new<int>(size)
+	for i=0 to size - 1
+		index.set(i, i)
+	multidata.index := index
+
+// @function For *INTERNAL* use only.
+__sort2d(data2d this, order, bool change) =>
+	if this.dataType != "mix"
+		if change
+			this.index := this.change(true).sort_indices(order)
+		else
+			switch this.dataType
+				"float" => 
+					this.index := this.floatValues.sort_indices(order)
+				"int" => 
+					this.index := this.intValues.sort_indices(order)
+				"timestamp" => 
+					this.index := this.timestampValues.sort_indices(order)
+				=> 
+					this.index := this.values.sort_indices(order)
+		this.sorted := true
+	this
+
+// @function For *INTERNAL* use only.
+__sort3d(data3d this, string dataKey, order, bool change) =>
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	dataType = this.dataKeyTypes.get(dkIdx)
+	if change
+		changeValues = array.new<float>()
+		for d2d in this.data
+			changeValues.push(d2d.change(true).get(dkIdx))
+		this.index := changeValues.sort_indices(order)
+	else
+		switch dataType
+			"float" => 
+				floatValues = array.new<float>()
+				for d2d in this.data
+					floatValues.push(d2d.floatValues.get(dkIdx))
+				this.index := floatValues.sort_indices(order)
+			"int" =>
+				intValues = array.new<int>()
+				for d2d in this.data
+					intValues.push(d2d.intValues.get(dkIdx))
+				this.index := intValues.sort_indices(order)
+			"timestamp" =>
+				timestampValues = array.new<int>()
+				for d2d in this.data
+					timestampValues.push(d2d.timestampValues.get(dkIdx))
+				this.index := timestampValues.sort_indices(order)
+			=>
+				values = array.new<string>()
+				for d2d in this.data
+					values.push(d2d.values.get(dkIdx))
+				this.index := values.sort_indices(order)
+	this.sorted := true
+	this
+
+// @function    	Sort a `data2d` object.
+// @param this		(data2d) The `data2d` object.
+// @param asc		(bool) Use true for ascending order, false for Descending order.
+// @param change	(bool) Sorts using change percent if true. (`na` is used if no argument is supplied).
+// @returns  		(data2d) The `data2d` object.
+export method sort(data2d this, bool asc, bool change = na) =>
+	order = asc ? order.ascending : order.descending
+	this.asc := asc
+	this.change := not na(change) ? change : this.change
+	__sort2d(this, order, this.change)
+
+// @function    	Sort a `data2d` object using it's default sorting order.
+// @param this		(data2d) The `data2d` object.
+// @param change	(bool) Sorts using change percent if true. (`na` is used if no argument is supplied).
+// @returns  		(data2d) The `data2d` object.
+export method sort(data2d this, bool change = na) =>
+	order = this.asc ? order.ascending : order.descending
+	this.change := not na(change) ? change : this.change
+	__sort2d(this, order, this.change)
+
+// @function    	Sort a `data3d` object.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(dataKey) The data key values used for sorting.
+// @param asc		(bool) Use true for ascending order, false for Descending order.
+// @param change	(bool) Sorts using change percent if true. (`na` is used if no argument is supplied).
+// @returns  		(data3d) The `data3d` object.
+export method sort(data3d this, string dataKey, bool asc, bool change = na) =>
+	order = asc ? order.ascending : order.descending
+	this.asc := asc
+	this.change := not na(change) ? change : this.change
+	__sort3d(this, dataKey, order, this.change)
+	
+// @function    	Sort a `data3d` object using it's default sorting order.
+// @param this		(data3d) The `data3d` object.
+// @param dataKey	(dataKey) The data key values used for sorting.
+// @param change	(bool) Sorts using change percent if true. (`na` is used if no argument is supplied).
+// @returns  		(data3d) The `data3d` object.
+export method sort(data3d this, string dataKey, bool change = na) =>
+	order = this.asc ? order.ascending : order.descending
+	this.change := not na(change) ? change : this.change
+	__sort3d(this, dataKey, order, this.change)
+
+// @function For *INTERNAL* use only.
+__init2d(data2d this, bool sort=false, bool asc=true, bool change=na) =>
+	kvs = this.kvs
+	size = kvs.size()
+	this.size := size
+	this.asc := asc
+	this.change := not na(change) ? change : this.change
+	vt = kvs.first().dataType
+	countDiffValType = 0
+	keys = array.new<string>(size)
+	vals = array.new<string>(size)
+	frmtVals = array.new<string>(size)
+	altVals = array.new<string>(size)
+	frmtAltVals = array.new<string>(size)
+	stringValues = array.new<string>(size)
+	stringAltVals = array.new<string>(size)
+	floatValues = array.new<float>(size)
+	floatAltVals = array.new<float>(size)
+	intValues = array.new<int>(size)
+	intAltVals = array.new<int>(size)
+	boolValues = array.new<bool>(size)
+	boolAltVals = array.new<bool>(size)
+	colorVals = array.new<color>(size)
+	colorAltVals = array.new<color>(size)
+	timestampVals = array.new<int>(size)
+	timestampAltVals = array.new<int>(size)
+	
+	__index(this)
+	
+	for [i, kV] in kvs
+		key = kV.key
+		if keys.includes(key)
+			msg = str.format("Key \"{0}\" already exist. Keys must be unique.", key)
+			runtime.error(msg)
+		countDiffValType := kV.dataType != vt ? countDiffValType + 1 : countDiffValType
+		keys.set(i, key)
+		vals.set(i, kV.value)
+		frmtVals.set(i, kV.formatValue)
+		altVals.set(i, kV.altValue)
+		frmtAltVals.set(i, kV.formatAltValue)
+		if kV.dataType == "string"
+			stringValues.set(i, kV.val.stringValue)
+			stringAltVals.set(i, kV.altVal.stringValue)
+		else if kV.dataType == "float"
+			floatValues.set(i, kV.val.floatValue)
+			floatAltVals.set(i, kV.altVal.floatValue)
+		else if kV.dataType == "int"
+			intValues.set(i, kV.val.intValue)
+			intAltVals.set(i, kV.altVal.intValue)
+		else if kV.dataType == "bool"
+			boolValues.set(i, kV.val.boolValue)
+			boolAltVals.set(i, kV.altVal.boolValue)
+		else if kV.dataType == "color"
+			colorVals.set(i, tools._clr(kV.val.stringValue))
+			colorAltVals.set(i, tools._clr(kV.altVal.stringValue))
+		else if kV.dataType == "timestamp"
+			timestampVals.set(i, kV.val.intValue)
+			timestampAltVals.set(i, kV.altVal.intValue)
+			if na(kV.format)
+				tz = kV._tz ? kV.timezone : this.timezone
+				frmtTimeVal = str.format_time(kV.val.intValue, this.formatTime, tz)
+				frmtVals.set(i, frmtTimeVal)
+				if not na(kV.altValue)
+					frmtTimeAltVal = str.format_time(kV.altVal.intValue, this.formatTime, tz)
+					frmtAltVals.set(i, frmtTimeAltVal)
+
+	this.dataType := countDiffValType > 0 ? "mix" : vt
+	this.keys := keys
+	this.values := vals
+	this.formatValues := frmtVals
+	this.altValues := altVals
+	this.formatAltValues := frmtAltVals
+	this.stringValues := stringValues
+	this.stringAltValues := stringAltVals
+	this.floatValues := floatValues
+	this.floatAltValues := floatAltVals
+	this.intValues := intValues
+	this.intAltValues := intAltVals
+	this.boolValues := boolValues
+	this.boolAltValues := boolAltVals
+	this.colorValues := colorVals
+	this.colorAltValues := colorAltVals
+	this.timestampValues := timestampVals
+	this.timestampAltValues := timestampAltVals
+
+	if sort
+		__sort2d(this, asc ? order.ascending : order.descending, change)
+	this
+
+// @function    	Create and initialize a data2d object.
+// @param kvs		(array<kv> ) An array of `kv` objects.
+// @param sort		(bool) Use true for sorting, false otherwise. (`false` is used if no argument is supplied).
+// @param asc		(bool) Use true for sort order.ascending, false for sort order.descending. (`true` is used if no argument is supplied).
+// @param change	(bool) Sorts using change percent if true. (`false` is used if no argument is supplied).
+// @param format	(string) The default format. (`na` is used if no argument is supplied).
+// @param timezone	(string) The default timezone. (`syminfo.timezone` is used if no argument is supplied).
+// @returns  		(data2d) The `data2d` object.
+export data2d(array<kv> kvs, bool sort=false, bool asc=true, bool change=na, string format=na, string timezone=na) =>
+	d2d = data2d.new(kvs=kvs)
+	d2d.timezone := not na(timezone) ? timezone : d2d.timezone
+	if not na(format)
+		d2d.format(format)
+	__init2d(d2d, sort, asc, change)
+	d2d
+
+// @function    	Create a data3d object.
+// @param pkvs		(array<pkv> ) An array of `pkv` objects.
+// @param sort		(bool) Use true for sorting, false otherwise. (`false` is used if no argument is supplied).
+// @param sortByKey	(string) The data key used for sorting. (`na` is used if no argument is supplied).
+// @param asc		(bool) Use true for sort order.ascending, false for sort order.descending. (`true` is used if no argument is supplied).
+// @param change	(bool) Sorts using change percent if true. (`na` is used if no argument is supplied).
+// @param format	(string) The default format. (`na` is used if no argument is supplied).
+// @param timezone	(string) The default timezone. (`syminfo.timezone` is used if no argument is supplied).
+// @returns  		(data2d) The `data2d` object.
+export data3d(array<pkv> pkvs, bool sort=false, string sortByKey=na, bool asc=true, bool change=na, string format=na, string timezone=na) =>
+	primaryKeys = array.new<string>()
+	dataKeys = pkvs.first().dataKeys
+	dataKeyTypes = pkvs.first().dataKeyTypes
+	data = array.new<data2d>()
+	string dataType = na
+	// For matching all other data keys and their types
+	flatDks = tools._join(dataKeys)
+	for [i, pKv] in pkvs
+		for [x,dkt] in dataKeyTypes
+			if dkt != pKv.dataKeyTypes.get(x)
+				runtime.error("Data key type does not match. Please make sure data key types match across all `pkv` objects.")
+		d2d = data2d(pKv.kvs, format=format, timezone=timezone)
+		if flatDks != tools._join(d2d.keys)
+			runtime.error("Data keys does not match. Please make sure data keys match across all `pkv` objects.")
+		primaryKeys.push(pKv.primaryKey)
+		data.push(d2d)
+		if i == 0
+			dataType := d2d.dataType
+	d3d = data3d.new(
+			  data=data,
+			  primaryKeys=primaryKeys,
+			  dataKeys=dataKeys,
+			  dataKeyTypes=dataKeyTypes,
+			  dataType=dataType,
+			  size=pkvs.size(),
+			  sorted=sort,
+			  sortByKey=sortByKey,
+			  asc=asc)
+	d3d.change := not na(change) ? change : d3d.change
+	d3d.index := __index(d3d)
+	d3d.timezone := not na(timezone) ? timezone : d3d.timezone
+	d3d.formatTime := not na(format) and dataType == "timestamp" ? format : d3d.formatTime
+	d3d.format := not na(format) and dataType != "timestamp" ? format : d3d.format
+	if not na(sortByKey) and sort
+		__sort3d(d3d, sortByKey, asc ? order.ascending : order.descending, d3d.change)
+	d3d
+
+// }
+
+// { Set:
+
+// @function    		Modify an existing value.
+// @param this			The data2d or data3d object.
+// @param key			(string) The key identifier.
+// @param primaryKey	(string) The primary key.
+// @param dataKey		(string) The data key.
+// @param value			A value to be set.
+// @param alt			(bool) Use true to set the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  			This object.
+export method set(data2d this, string key, string value, bool alt=false) =>
+	[index, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	kV = this.kvs.get(index)
+	if kV.dataType != "string"
+		runtime.error(SET_ERROR + kV.dataType + ".")
+	kvFormat = kV.format
+	vL = val.new(stringValue=value)
+	d2dfv = not na(kvFormat) ? str.format(kvFormat, value) : (not na(this.format) ? str.format(this.format, value) : value)
+	if alt
+		kV.altVal := vL
+		kV.altValue := value
+		kV.formatAltValue := d2dfv
+		altValues = this.altValues
+		altValues.set(index, value)
+		this.altValues := altValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.set(index, d2dfv)
+		this.formatAltValues := formatAltValues
+	else
+		kV.val := vL
+		kV.value := value
+		kV.formatValue := d2dfv
+		values = this.values
+		values.set(index, value)
+		this.values := values
+		formatValues = this.formatValues
+		formatValues.set(index, d2dfv)
+		this.formatValues := formatValues
+
+	// Doing it this way to avoid function return issue.
+	if this.sorted
+		__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+export method set(data2d this, string key, float value, bool alt=false) =>
+	[index, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	kV = this.kvs.get(index)
+	if kV.dataType != "float"
+		runtime.error(SET_ERROR + kV.dataType + ".")
+	strVal = tools._str(value)
+	kvFormat = kV.format
+	vL = val.new(floatValue=value)
+	d2dfv = not na(kvFormat) ? str.format(kvFormat, value) : (not na(this.format) ? str.format(this.format, value) : strVal)
+	if alt
+		kV.altVal := vL
+		kV.altValue := strVal
+		kV.formatAltValue := d2dfv
+		floatAltValues = this.floatAltValues
+		floatAltValues.set(index, value)
+		this.floatAltValues := floatAltValues
+		altValues = this.altValues
+		altValues.set(index, strVal)
+		this.altValues := altValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.set(index, d2dfv)
+		this.formatAltValues := formatAltValues
+	else
+		kV.val := vL
+		kV.value := strVal
+		kV.formatValue := d2dfv
+		floatValues = this.floatValues
+		floatValues.set(index, value)
+		this.floatValues := floatValues
+		values = this.values
+		values.set(index, strVal)
+		this.values := values
+		formatValues = this.formatValues
+		formatValues.set(index, d2dfv)
+		this.formatValues := formatValues
+	
+	// Doing it this way to avoid function return issue.
+	if this.sorted
+		__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+export method set(data2d this, string key, int value, bool alt=false) =>
+	[index, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	kV = this.kvs.get(index)
+	if kV.dataType != "int" and kV.dataType != "timestamp"
+		runtime.error(SET_ERROR + kV.dataType + ".")
+	strVal = tools._str(value)
+	dtype = kV.dataType
+	kvFormat = kV.format
+	vL = val.new(intValue=value)
+	frmt = dtype == "timestamp" ? str.format_time(value, kvFormat, this.timezone) : str.format(kvFormat, value)
+	d2dfv = not na(kvFormat) ? frmt : (dtype == "int" ? strVal : str.format_time(value, this.formatTime, this.timezone))
+	if alt
+		kV.altVal := vL
+		kV.altValue := strVal
+		kV.formatAltValue := d2dfv
+		if dtype == "timestamp"
+			timestampAltValues = this.timestampAltValues
+			timestampAltValues.set(index, value)
+			this.timestampAltValues := timestampAltValues
+		else
+			intAltValues = this.intAltValues
+			intAltValues.set(index, value)
+			this.intAltValues := intAltValues
+		altValues = this.altValues
+		altValues.set(index, strVal)
+		this.altValues := altValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.set(index, d2dfv)
+		this.formatAltValues := formatAltValues
+	else
+		kV.val := vL
+		kV.value := strVal
+		kV.formatValue := d2dfv
+		if dtype == "timestamp"
+			timestampValues = this.timestampValues
+			timestampValues.set(index, value)
+			this.timestampValues := timestampValues
+		else
+			intValues = this.intValues
+			intValues.set(index, value)
+			this.intValues := intValues
+		values = this.values
+		values.set(index, strVal)
+		this.values := values
+		formatValues = this.formatValues
+		formatValues.set(index, d2dfv)
+		this.formatValues := formatValues
+	
+	// Doing it this way to avoid function return issue.
+	if this.sorted
+		__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+
+export method set(data2d this, string key, bool value, bool alt=false) =>
+	[index, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	kV = this.kvs.get(index)
+	if kV.dataType != "bool"
+		runtime.error(SET_ERROR + kV.dataType + ".")
+	strVal = tools._str(value)
+	kvFormat = kV.format
+	vL = val.new(boolValue=value)
+	d2dfv = not na(kvFormat) ? str.format(kvFormat, strVal) : (not na(this.format) ? str.format(this.format, strVal) : strVal)
+	if alt
+		kV.altVal := vL
+		kV.altValue := strVal
+		kV.formatAltValue := d2dfv
+		boolAltValues = this.boolAltValues
+		boolAltValues.set(index, value)
+		this.boolAltValues := boolAltValues
+		altValues = this.altValues
+		altValues.set(index, strVal)
+		this.altValues := altValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.set(index, d2dfv)
+		this.formatAltValues := formatAltValues
+	else
+		kV.val := vL
+		kV.value := strVal
+		kV.formatValue := d2dfv
+		boolValues = this.boolValues
+		boolValues.set(index, value)
+		this.boolValues := boolValues
+		values = this.values
+		values.set(index, strVal)
+		this.values := values
+		formatValues = this.formatValues
+		formatValues.set(index, d2dfv)
+		this.formatValues := formatValues
+
+	// Doing it this way to avoid function return issue.
+	if this.sorted
+		__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+	this
+	
+export method set(data2d this, string key, color value, bool alt=false) =>
+	[index, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	kV = this.kvs.get(index)
+	if kV.dataType != "color"
+		runtime.error(SET_ERROR + kV.dataType + ".")
+	strVal = tools._str(value)
+	kvFormat = kV.format
+	vL = val.new(stringValue=strVal)
+	d2dfv = not na(kvFormat) ? str.format(kvFormat, strVal) : (not na(this.format) ? str.format(this.format, strVal) : strVal)
+	if kV.dataType == "color"
+		if alt
+			kV.altVal := vL
+			kV.altValue := strVal
+			kV.formatAltValue := d2dfv
+			colorAltValues = this.colorAltValues
+			colorAltValues.set(index, value)
+			this.colorAltValues := colorAltValues
+			altValues = this.altValues
+			altValues.set(index, strVal)
+			this.altValues := altValues
+			this.formatAltValues.set(index, d2dfv)
+			formatAltValues = this.formatAltValues
+			formatAltValues.set(index, d2dfv)
+			this.formatAltValues := formatAltValues
+		else
+			kV.val := vL
+			kV.value := strVal
+			kV.formatValue := d2dfv
+			colorValues = this.colorValues
+			colorValues.set(index, value)
+			this.colorValues := colorValues
+			values = this.values
+			values.set(index, strVal)
+			this.values := values
+			formatValues = this.formatValues
+			formatValues.set(index, d2dfv)
+			this.formatValues := formatValues
+
+		// Doing it this way to avoid function return issue.
+		if this.sorted
+			__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+		this
+
+export method set(data3d this, string primaryKey, string dataKey, string value, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	dkType = this.dataKeyTypes.get(dkIdx)
+	if dkType != "string"
+		runtime.error(SET_ERROR + dkType + ".")
+	this.data.get(pkIdx).set(dataKey, value, alt)
+	if this.sorted and this.sortByKey == dataKey
+		__sort3d(this, dataKey, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+export method set(data3d this, string primaryKey, string dataKey, float value, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	dkType = this.dataKeyTypes.get(dkIdx)
+	if dkType != "float"
+		runtime.error(SET_ERROR + dkType + ".")
+	this.data.get(pkIdx).set(dataKey, value, alt)
+	if this.sorted and this.sortByKey == dataKey
+		__sort3d(this, dataKey, this.asc ? order.ascending : order.descending, this.change)
+	this
+			
+export method set(data3d this, string primaryKey, string dataKey, int value, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	dkType = this.dataKeyTypes.get(dkIdx)
+	if dkType != "int" and dkType != "timestamp" 
+		runtime.error(SET_ERROR + dkType + ".")
+	this.data.get(pkIdx).set(dataKey, value, alt)
+	if this.sorted and this.sortByKey == dataKey
+		__sort3d(this, dataKey, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+export method set(data3d this, string primaryKey, string dataKey, bool value, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	dkType = this.dataKeyTypes.get(dkIdx)
+	if dkType != "bool"
+		runtime.error(SET_ERROR + dkType + ".")
+	this.data.get(pkIdx).set(dataKey, value, alt)
+	if this.sorted and this.sortByKey == dataKey
+		__sort3d(this, dataKey, this.asc ? order.ascending : order.descending, this.change)
+	this
+	
+export method set(data3d this, string primaryKey, string dataKey, color value, bool alt=false) =>
+	[pkIdx, pkExist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(pkExist, primaryKey)
+	[dkIdx, dkExist] = __dataKeyExist(this, dataKey)
+	__existErrorCheck(dkExist, dataKey)
+	dkType = this.dataKeyTypes.get(dkIdx)
+	if dkType != "color"
+		runtime.error(SET_ERROR + dkType + ".")
+	this.data.get(pkIdx).set(dataKey, value, alt)
+	if this.sorted and this.sortByKey == dataKey
+		__sort3d(this, dataKey, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+// }
+
+// { Push
+
+// @function For *INTERNAL* use only.
+__pushToOthers(data2d this, string except=na) =>
+	if except != "string"
+		vals = this.stringValues
+		vals.push(na)
+		altVals = this.stringAltValues
+		altVals.push(na)
+		this.stringValues := vals
+		this.stringAltValues := altVals
+	if except != "float"
+		vals = this.floatValues
+		vals.push(na)
+		altVals = this.floatAltValues
+		altVals.push(na)
+		this.floatValues := vals
+		this.floatAltValues := altVals
+	if except != "int"
+		vals = this.intValues
+		vals.push(na)
+		altVals = this.intAltValues
+		altVals.push(na)
+		this.intValues := vals
+		this.intAltValues := altVals
+	if except != "bool"
+		vals = this.boolValues
+		vals.push(na)
+		altVals = this.boolAltValues
+		altVals.push(na)
+		this.boolValues := vals
+		this.boolAltValues := altVals
+	if except != "color"
+		vals = this.colorValues
+		vals.push(na)
+		altVals = this.colorAltValues
+		altVals.push(na)
+		this.colorValues := vals
+		this.colorAltValues := altVals
+	if except != "timestamp"
+		vals = this.timestampValues
+		vals.push(na)
+		altVals = this.timestampAltValues
+		altVals.push(na)
+		this.timestampValues := vals
+		this.timestampAltValues := altVals
+
+// @function    	Push a new key and value pair into a `data2d` object. This method extends Pine Script's array.push() function. 
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param value		(int) An integer value to be set.
+// @param altValue	(int) An integer alt value to be set. (`na` is used if no argument is supplied).
+// @param timestamp	(bool) Use true if this value is an unix timestamp, false otherwise. (`na` is used if no argument is supplied).
+// @param timezone  (string) A custom timezone for this new value. Only used if timestamp is true. (`na` is used if no argument is supplied).
+// @param format	(string) A custom format for this new value. (`na` is used if no argument is supplied).
+// @returns  		(data2d) The `data2d` object.
+export method push(data2d this, string key, int value, int altValue=na, bool timestamp=na, string timezone=na, string format=na) =>
+	if this.keys.indexof(key) == -1
+		// Determine and set proper data type.
+		_timestamp = not na(timestamp) ? timestamp : false
+		vType = _timestamp ? "timestamp" : "int"
+		this.dataType := this.dataType == vType ? vType : "mix"
+		// Create the new kv object.
+		kV = key.kv(val=value, altVal=altValue, timestamp=timestamp, timezone=timezone, format=format)
+		// Determine timezone.
+		_timezone = not na(timezone) ? timezone : syminfo.timezone
+		// Create necessary values.
+		strVal = tools._str(value)
+		strAltVal = not na(altValue) ? tools._str(altValue) : na
+		string frmtVal = strVal
+		string frmtAltVal = strAltVal
+		if not na(format)
+			if vType == "timestamp"
+				frmtVal := str.format_time(value, format, _timezone)
+			else 
+				frmtVal := str.format(format, value)		
+			if not na(altValue)
+				if vType == "timestamp"
+					frmtAltVal := str.format_time(altValue, format, _timezone)
+				else 
+					frmtAltVal := str.format(format, altValue)
+		else
+			if vType == "timestamp"
+				frmtVal := str.format_time(value, this.formatTime, _timezone)
+				if not na(altValue)
+					frmtAltVal := str.format_time(altValue, this.formatTime, _timezone)
+			else
+				if not na(this.format)
+					frmtVal := str.format(this.format, value)
+					if not na(altValue)
+						frmtAltVal := str.format(this.format, altValue)
+		// Push new kv to this.kvs.
+		kvs = this.kvs
+		kvs.push(kV)
+		// Push new key to this.keys.
+		keys = this.keys
+		keys.push(key)
+		// Push new value to this.values.
+		values = this.values
+		values.push(strVal)
+		// Push new format value to this.formatValues.
+		formatValues = this.formatValues
+		formatValues.push(frmtVal)
+		// Push new alt value to this.altValues.
+		altValues = this.altValues
+		altValues.push(strAltVal)
+		// Push new format alt value to this.formatAltValues.
+		formatAltValues = this.formatAltValues
+		formatAltValues.push(frmtAltVal)
+		// Push new int or timestamp values to this.
+		if vType == "timestamp"
+			timestampValues = this.timestampValues
+			timestampValues.push(value)
+			if not na(altValue)
+				timestampAltValues = this.timestampAltValues
+				timestampAltValues.push(altValue)
+		else
+			intValues = this.intValues
+			intValues.push(value)
+			if not na(altValue)
+				intAltValues = this.intAltValues
+				intAltValues.push(altValue)
+		// Increment the this.size to +1.
+		this.size := this.size + 1
+		// Push to the index.
+		__index(this)
+		// Increase size in the other types for consistency.
+		__pushToOthers(this, except=vType)
+		// Sort if sorted.
+		if this.sorted
+			__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+		this
+
+export method push(data2d this, string key, string value, string altValue=na, string format=na) =>
+	if this.keys.indexof(key) == -1
+		// Determine and set proper data type.
+		this.dataType := this.dataType == "string" ? "string" : "mix"
+		// Create the new kv object.
+		kV = key.kv(val=value, altVal=altValue, format=format)
+		// Create necessary values.
+		string frmtVal = value
+		string frmtAltVal = altValue
+		if not na(format)
+			frmtVal := str.format(format, value)
+			if not na(altValue)
+				frmtAltVal := str.format(format, altValue)
+		else
+			if not na(this.format)
+				frmtVal := str.format(this.format, value)
+				if not na(altValue)
+					frmtAltVal := str.format(this.format, altValue)
+		// Push new kv to this.kvs
+		kvs = this.kvs
+		kvs.push(kV)
+		this.kvs := kvs
+		// Push new key to this.keys
+		keys = this.keys
+		keys.push(key)
+		this.keys := keys
+		// Push new value to this.values
+		values = this.values
+		values.push(value)
+		this.values := values
+		// Push new format value to this.formatValues
+		formatValues = this.formatValues
+		formatValues.push(frmtVal)
+		this.formatValues := formatValues
+		// Push new alt value to this.altValues
+		altValues = this.altValues
+		altValues.push(na)
+		this.altValues := altValues
+		// Push new format alt value to this.formatAltValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.push(frmtAltVal)
+		this.formatAltValues := formatAltValues
+		// Increment the this.size to +1
+		this.size += 1
+		// Refresh the index.
+		__index(this)
+		// Increase size in the other types for consistency
+		__pushToOthers(this)
+		// Sort if sorted.
+		if this.sorted
+			__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+		this
+
+export method push(data2d this, string key, float value, float altValue=na, string format=na) =>
+	if this.keys.indexof(key) == -1
+		// Determine and set proper data type.
+		this.dataType := this.dataType == "float" ? "float" : "mix"
+		// Create the new kv object.
+		kV = key.kv(val=value, altVal=altValue, format=format)
+		// Create necessary values.
+		strVal = tools._str(value)
+		strAltVal = not na(altValue) ? tools._str(altValue) : na
+		string frmtVal = strVal
+		string frmtAltVal = strAltVal
+		if not na(format)
+			frmtVal := str.format(format, value)
+			if not na(altValue)
+				frmtAltVal := str.format(format, altValue)
+		else
+			if not na(this.format)
+				frmtVal := str.format(this.format, value)
+				if not na(altValue)
+					frmtAltVal := str.format(this.format, altValue)
+		// Push new kv to this.kvs
+		kvs = this.kvs
+		kvs.push(kV)
+		this.kvs := kvs
+		// Push new key to this.keys
+		keys = this.keys
+		keys.push(key)
+		this.keys := keys
+		// Push new value to this.values
+		values = this.values
+		values.push(strVal)
+		this.values := values
+		// Push new format value to this.formatValues
+		formatValues = this.formatValues
+		formatValues.push(frmtVal)
+		this.formatValues := formatValues
+		// Push new alt value to this.altValues
+		altValues = this.altValues
+		altValues.push(strAltVal)
+		this.altValues := altValues
+		// Push new format alt value to this.formatAltValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.push(frmtAltVal)
+		this.formatAltValues := formatAltValues
+		// Push new float values to this.floatValues
+		floatValues = this.floatValues
+		floatValues.push(value)
+		this.floatValues := floatValues
+		if not na(altValue)
+			floatAltValues = this.floatAltValues
+			floatAltValues.push(altValue)
+			this.floatAltValues := floatAltValues
+		// Increment the this.size to +1
+		this.size += 1
+		// Refresh the index.
+		__index(this)
+		// Increase size in the other types for consistency
+		__pushToOthers(this, except="float")
+		// Sort if sorted.
+		if this.sorted
+			__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+		this
+
+export method push(data2d this, string key, bool value, bool altValue=na, string format=na) =>
+	if this.keys.indexof(key) == -1
+		// Determine and set proper data type.
+		this.dataType := this.dataType == "bool" ? "bool" : "mix"
+		// Create the new kv object.
+		kV = key.kv(val=value, altVal=altValue, format=format)
+		// Create necessary values.
+		strVal = tools._str(value)
+		strAltVal = not na(altValue) ? tools._str(altValue) : na
+		string frmtVal = strVal
+		string frmtAltVal = strAltVal
+		if not na(format)
+			frmtVal := str.format(format, strVal)
+			if not na(altValue)
+				frmtAltVal := str.format(format, strAltVal)
+		else
+			if not na(this.format)
+				frmtVal := str.format(this.format, strVal)
+				if not na(altValue)
+					frmtAltVal := str.format(this.format, strAltVal)
+		// Push new kv to this.kvs
+		kvs = this.kvs
+		kvs.push(kV)
+		this.kvs := kvs
+		// Push new key to this.keys
+		keys = this.keys
+		keys.push(key)
+		this.keys := keys
+		// Push new value to this.values
+		values = this.values
+		values.push(strVal)
+		this.values := values
+		// Push new format value to this.formatValues
+		formatValues = this.formatValues
+		formatValues.push(frmtVal)
+		this.formatValues := formatValues
+		// Push new alt value to this.altValues
+		altValues = this.altValues
+		altValues.push(strAltVal)
+		this.altValues := altValues
+		// Push new format alt value to this.formatAltValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.push(frmtAltVal)
+		this.formatAltValues := formatAltValues
+		// Push new bool values to this.boolValues
+		boolValues = this.boolValues
+		boolValues.push(value)
+		this.boolValues := boolValues
+		if not na(altValue)
+			boolAltValues = this.boolAltValues
+			boolAltValues.push(altValue)
+			this.boolAltValues := boolAltValues
+		// Increment the this.size to +1
+		this.size += 1
+		// Refresh the index.
+		__index(this)
+		// Increase size in the other types for consistency
+		__pushToOthers(this, except="bool")
+		// Sort if sorted.
+		if this.sorted
+			__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+		this
+
+export method push(data2d this, string key, color value, color altValue=na, string format=na) =>
+	if this.keys.indexof(key) == -1
+		// Determine and set proper data type.
+		this.dataType := this.dataType == "color" ? "color" : "mix"
+		// Create the new kv object.
+		kV = key.kv(val=value, altVal=altValue, format=format)
+		// Create necessary values.
+		strVal = tools._str(value)
+		strAltVal = not na(altValue) ? tools._str(altValue) : na
+		string frmtVal = strVal
+		string frmtAltVal = strAltVal
+		if not na(format)
+			frmtVal := str.format(format, strVal)
+			if not na(altValue)
+				frmtAltVal := str.format(format, strAltVal)
+		else
+			if not na(this.format)
+				frmtVal := str.format(this.format, strVal)
+				if not na(altValue)
+					frmtAltVal := str.format(this.format, strAltVal)
+		// Push new kv to this.kvs
+		kvs = this.kvs
+		kvs.push(kV)
+		this.kvs := kvs
+		// Push new key to this.keys
+		keys = this.keys
+		keys.push(key)
+		this.keys := keys
+		// Push new value to this.values
+		values = this.values
+		values.push(strVal)
+		this.values := values
+		// Push new format value to this.formatValues
+		formatValues = this.formatValues
+		formatValues.push(frmtVal)
+		this.formatValues := formatValues
+		// Push new alt value to this.altValues
+		altValues = this.altValues
+		altValues.push(strAltVal)
+		this.altValues := altValues
+		// Push new format alt value to this.formatAltValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.push(frmtAltVal)
+		this.formatAltValues := formatAltValues
+		// Push new color values to this.colorValues
+		colorValues = this.colorValues
+		colorValues.push(value)
+		this.colorValues := colorValues
+		if not na(altValue)
+			colorAltValues = this.colorAltValues
+			colorAltValues.push(altValue)
+			this.colorAltValues := colorAltValues
+		// Increment the this.size to +1
+		this.size += 1
+		// Refresh the index.
+		__index(this)
+		// Increase size in the other types for consistency
+		__pushToOthers(this, except="color")
+		// Sort if sorted.
+		if this.sorted
+			__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+		this
+
+// @function    Push a new primary key and key-value pairs into a `data3d` object. This method extends Pine Script's array.push() function. 
+// @param this	(data3d) The `data3d` object.
+// @param pkv	(pkv) A `pkv` object.
+// @returns  	(data3d) The `data3d` object.
+export method pkPush(data3d this, pkv pkv) =>
+	primaryKeys = this.primaryKeys
+	pk = pkv.primaryKey
+	if primaryKeys.includes(pk)
+		runtime.error("Primary key exist.")
+	if tools._join(pkv.dataKeys) != tools._join(this.dataKeys)
+		runtime.error("Data keys does not match. Please make sure all provided data keys match existing data keys.")
+	if tools._join(pkv.dataKeyTypes) != tools._join(this.dataKeyTypes)
+		runtime.error("Data key types does not match. Please make sure all data key types match existing data key types.")
+	primaryKeys.push(pk)
+	this.size += 1
+	data = this.data
+	d2d = data2d(pkv.kvs, format=this.format, timezone=this.timezone)
+	data.push(d2d)
+	__index(this)
+	if this.sorted
+		__sort3d(this, this.sortByKey, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+// }
+
+// { Remove
+
+// @function    	Removes the key and data of the specified key. If alt is true, then removes only alternate value. This method extends Pine Script's array.remove() function.
+// @param this		(data2d) The `data2d` object.
+// @param key		(string) The key identifier.
+// @param alt		(bool) Use true to remove the alternate value instead. (`false` is used if no argument is supplied).
+// @returns  		(data2d) The `data2d` object.
+export method remove(data2d this, string key, bool alt=false) =>
+	[index, exist] = __keyExist(this, key)
+	__existErrorCheck(exist, key)
+	if alt
+		// altValues
+		altValues = this.altValues
+		altValues.set(index, na)
+		// formatAltValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.set(index, na)
+		// floatValues
+		floatValues = this.floatValues
+		floatValues.set(index, na)
+		// intValues
+		intValues = this.intValues
+		intValues.set(index, na)
+		// boolValues
+		boolValues = this.boolValues
+		boolValues.set(index, na)
+		// colorValues
+		colorValues = this.colorValues
+		colorValues.set(index, na)
+		// timestampValues
+		timestampValues = this.timestampValues
+		timestampValues.set(index, na)
+	else
+		// kvs
+		kvs = this.kvs
+		kvs.remove(index)
+		// keys
+		keys = this.keys
+		keys.remove(index)
+		// values
+		values = this.values
+		values.remove(index)
+		// formatValues
+		formatValues = this.formatValues
+		formatValues.remove(index)
+		// altValues
+		altValues = this.altValues
+		altValues.remove(index)
+		// formatAltValues
+		formatAltValues = this.formatAltValues
+		formatAltValues.remove(index)
+		// floatValues
+		floatValues = this.floatValues
+		floatValues.remove(index)
+		// floatAltValues
+		floatAltValues = this.floatAltValues
+		floatAltValues.remove(index)
+		// intValues
+		intValues = this.intValues
+		intValues.remove(index)
+		// intAltValues
+		intAltValues = this.intAltValues
+		intAltValues.remove(index)
+		// boolValues
+		boolValues = this.boolValues
+		boolValues.remove(index)
+		// boolAltValues
+		boolAltValues = this.boolAltValues
+		boolAltValues.remove(index)
+		// colorValues
+		colorValues = this.colorValues
+		colorValues.remove(index)
+		// colorAltValues
+		colorAltValues = this.colorAltValues
+		colorAltValues.remove(index)
+		// timestampValues
+		timestampValues = this.timestampValues
+		timestampValues.remove(index)
+		// timestampAltValues
+		timestampAltValues = this.timestampAltValues
+		timestampAltValues.remove(index)
+		// Indexing
+		__index(this)
+		if this.sorted
+			__sort2d(this, this.asc ? order.ascending : order.descending, this.change)
+		if this.dataType == "mix"
+			vt = this.kvs.first().dataType
+			countDiffValType = 0
+			for [i, kV] in this.kvs
+				if kV.dataType != vt
+					countDiffValType += 1
+			this.dataType := countDiffValType > 0 ? "mix" : vt
+	this
+
+// @function    		Removes the primary key and all its data. This method extends Pine Script's array.remove() function.
+// @param this			(data3d) The `data3d` object.
+// @param primaryKey	(string) The primary key used for searching.
+// @returns  			(data3d) The `data3d` object.
+export method pkRemove(data3d this, string primaryKey) =>
+	[pkIdx, exist] = __primaryKeyExist(this, primaryKey)
+	__existErrorCheck(exist, primaryKey)
+	d2ds = this.data
+	// Remove the data asscociated with the primary key
+	d2ds.remove(pkIdx)
+	// Remove the primary key
+	pks = this.primaryKeys
+	pks.remove(pkIdx)
+	__index(this)
+	if this.sorted
+		__sort3d(this, this.sortByKey, this.asc ? order.ascending : order.descending, this.change)
+	this
+
+// }
+
+var d2d = array.from(
+  '- Key-Value data structure: key -> [ main-value | alternate-value ].',
+  '- Ability to store multiple data types.',
+  '- Add a second alternate value, enabling two values under one key.',
+  '- Built in comparison methods to compare main values with their alternate values.',
+  '- Efforlessly store, retrieve and display Unix timestamps.',
+  '- Automaticaly format stored data.',
+  '- Sort all data types.',
+  '- Familiar array functions for intuitive data manipulation.')
+
+var d3d = array.from(
+  '- A nested data structure: primary key -> data key -> [ main-value | alternate-value ].',
+  '- Sorting based on The data key.',
+  '- Plus, all the similar features of this.')
+
+if barstate.islast
+	hs = tools.headerStyle.new(textSize=size.large)
+    fs = tools.footerStyle.new(textSize=size.large, textHalign=text.align_right)
+    ts = tools.titleStyle.new(top=true, textHalign=text.align_left, textValign=text.align_top, textSize=size.large)
+    cs = tools.cellStyle.new(textHalign=text.align_left, textSize=size.normal)
+	printer = tools._printer.new(loc=position.middle_center).header("Multidimensional Array Data Structures.", hs).footer("Full Documentation: https://faiyaz7283.github.io/multidata", fs).title(titleStyle=ts).cell(cellStyle=cs).gutter(true).stack(true).theme("orange")
+	printer.print(d2d, title = "Data2d")
+	printer.print(d3d, title = "Data3d")

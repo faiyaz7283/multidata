@@ -12,7 +12,7 @@ const withMDX = nextMDX({
   },
 })
 
-const pathPrefix = process.env.NODE_ENV === 'production' ? '/tools' : '';
+const pathPrefix = process.env.NODE_ENV === 'production' ? '/multidata' : '';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
