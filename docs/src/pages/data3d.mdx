@@ -67,38 +67,38 @@ creation process for better efficiency.
 ```js {{ title: 'Building data for data3d the long way' }}
 // Create pkv object for 'AAPL' primary key.
 aapl = pkv('AAPL', array.from(
-  'open'.kv(request.security('AAPL', '', open)).alt(request.security('AAPL', '', open[1])),
-  'high'.kv(request.security('AAPL', '', high)).alt(request.security('AAPL', '', high[1])),
-  'low'.kv(request.security('AAPL', '', low)).alt(request.security('AAPL', '', low[1])),
-  'close'.kv(request.security('AAPL', '', close)).alt(request.security('AAPL', '', close[1]))))
+  kv('open', request.security('AAPL', '', open)).alt(request.security('AAPL', '', open[1])),
+  kv('high', request.security('AAPL', '', high)).alt(request.security('AAPL', '', high[1])),
+  kv('low', request.security('AAPL', '', low)).alt(request.security('AAPL', '', low[1])),
+  kv('close', request.security('AAPL', '', close)).alt(request.security('AAPL', '', close[1]))))
 
 // Create pkv object for 'AMZN' primary key.
 amzn = pkv('AMZN', array.from(
-  'open'.kv(request.security('AMZN', '', open)).alt(request.security('AMZN', '', open[1])),
-  'high'.kv(request.security('AMZN', '', high)).alt(request.security('AMZN', '', high[1])),
-  'low'.kv(request.security('AMZN', '', low)).alt(request.security('AMZN', '', low[1])),
-  'close'.kv(request.security('AMZN', '', close)).alt(request.security('AMZN', '', close[1]))))
+  kv('open', request.security('AMZN', '', open)).alt(request.security('AMZN', '', open[1])),
+  kv('high', request.security('AMZN', '', high)).alt(request.security('AMZN', '', high[1])),
+  kv('low', request.security('AMZN', '', low)).alt(request.security('AMZN', '', low[1])),
+  kv('close', request.security('AMZN', '', close)).alt(request.security('AMZN', '', close[1]))))
 
 // Create pkv object for 'MSFT' primary key.
 msft = pkv('MSFT', array.from(
-  'open'.kv(request.security('MSFT', '', open)).alt(request.security('MSFT', '', open[1])),
-  'high'.kv(request.security('MSFT', '', high)).alt(request.security('MSFT', '', high[1])),
-  'low'.kv(request.security('MSFT', '', low)).alt(request.security('MSFT', '', low[1])),
-  'close'.kv(request.security('MSFT', '', close)).alt(request.security('MSFT', '', close[1]))))
+  kv('open', request.security('MSFT', '', open)).alt(request.security('MSFT', '', open[1])),
+  kv('high', request.security('MSFT', '', high)).alt(request.security('MSFT', '', high[1])),
+  kv('low', request.security('MSFT', '', low)).alt(request.security('MSFT', '', low[1])),
+  kv('close', request.security('MSFT', '', close)).alt(request.security('MSFT', '', close[1]))))
 
 // Create pkv object for 'NVDA' primary key.
 nvda = pkv('NVDA', array.from(
-  'open'.kv(request.security('NVDA', '', open)).alt(request.security('NVDA', '', open[1])),
-  'high'.kv(request.security('NVDA', '', high)).alt(request.security('NVDA', '', high[1])),
-  'low'.kv(request.security('NVDA', '', low)).alt(request.security('NVDA', '', low[1])),
-  'close'.kv(request.security('NVDA', '', close)).alt(request.security('NVDA', '', close[1]))))
+  kv('open', request.security('NVDA', '', open)).alt(request.security('NVDA', '', open[1])),
+  kv('high', request.security('NVDA', '', high)).alt(request.security('NVDA', '', high[1])),
+  kv('low', request.security('NVDA', '', low)).alt(request.security('NVDA', '', low[1])),
+  kv('close', request.security('NVDA', '', close)).alt(request.security('NVDA', '', close[1]))))
 
 // Create pkv object for 'TSLA' primary key.
 tsla = pkv('TSLA', array.from(
-  'open'.kv(request.security('TSLA', '', open)).alt(request.security('TSLA', '', open[1])),
-  'high'.kv(request.security('TSLA', '', high)).alt(request.security('TSLA', '', high[1])),
-  'low'.kv(request.security('TSLA', '', low)).alt(request.security('TSLA', '', low[1])),
-  'close'.kv(request.security('TSLA', '', close)).alt(request.security('TSLA', '', close[1]))))
+  kv('open', request.security('TSLA', '', open)).alt(request.security('TSLA', '', open[1])),
+  kv('high', request.security('TSLA', '', high)).alt(request.security('TSLA', '', high[1])),
+  kv('low', request.security('TSLA', '', low)).alt(request.security('TSLA', '', low[1])),
+  kv('close', request.security('TSLA', '', close)).alt(request.security('TSLA', '', close[1]))))
 ```
 
 The above data creation process can quickly become bulky and hard to read. Moreover, it rapidly exhausts the maximum allowed calls for the 
@@ -615,3 +615,19 @@ d3d.dkTimestampChange( // .... Returns an array of strings with time segments.
 ```
 
 </CodeGroup>
+
+## Print
+
+You can now easily print any [`data3d`](/_data3d) object, directly on your chart, using the `print()` method from the 
+[`tools`](https://faiyaz7283.github.io/tools) library. 
+
+```js {{ title: 'Print' }}
+// Replace the N with latest version number.
+// import faiyaz7283/tools/N as tools
+
+if barstate.islast
+  printer = tools._printer.new()
+
+  // Pass any data3d object.
+  printer.print(d3d_obj) // Displays the objects primary keys, data keys and values.
+```

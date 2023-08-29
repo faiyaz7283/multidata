@@ -7,7 +7,7 @@
 library("multidata", overlay=true)
 
 // Imports
-import faiyaz7283/tools/3 as tools
+import faiyaz7283/tools/5 as tools
 
 var ALT_ERROR 		= "Wrong data type is being used to set altVal. The altVal must match the original val type of "
 var SET_ERROR 		= "Wrong data type is being used to set value. The value must match the original value type of "
@@ -1135,7 +1135,7 @@ export method change(data3d this, string primaryKey, string dataKey, bool percen
 	d2d = this.data.get(pkIdx)
 	__getChange(d2d, dkIdx, percent)
 
-// @function    		Get the change or change percent value of all the data keys for The primary key. (main == alt)
+// @function    		Get the change or change percent value of all the data keys for the primary key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @param percent		(bool) If true, returns the change percent instead of the change.
@@ -1146,7 +1146,7 @@ export method pkChange(data3d this, string primaryKey, bool percent=false) =>
 	d2d = this.data.get(pkIdx)
 	__getChange(d2d, percent)
 
-// @function    		Get the change or change percent value of all the primary keys for The data key. (main == alt)
+// @function    		Get the change or change percent value of all the primary keys for the data key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @param percent		(bool) If true, returns the change percent instead of the change.
@@ -1192,7 +1192,7 @@ export method changeF(data3d this, string primaryKey, string dataKey, bool perce
 	d2d = this.data.get(pkIdx)
 	__getChangeF(d2d, dkIdx, percent, format)
 
-// @function    		Get formatted change or change percent value of all the data keys for The primary key. (main == alt)
+// @function    		Get formatted change or change percent value of all the data keys for the primary key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @param percent		(bool) If true, returns the change percent instead of the change.
@@ -1204,7 +1204,7 @@ export method pkChangeF(data3d this, string primaryKey, bool percent=false, stri
 	d2d = this.data.get(pkIdx)
 	__getChangeF(d2d, percent, format)
 
-// @function    		Get formatted change or change percent value of all the primary keys for The data key. (main == alt)
+// @function    		Get formatted change or change percent value of all the primary keys for the data key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @param percent		(bool) If true, returns the change percent instead of the change.
@@ -1266,7 +1266,7 @@ export method timestampChange(data3d this, string primaryKey, string dataKey, bo
 	d2d = this.data.get(pkIdx)
 	__getTimestampChangeF(d2d, dkIdx, years, months, weeks, days, hours, minutes, seconds)
 
-// @function    		Get segmented time difference value of all the data keys for The primary key. (main == alt)
+// @function    		Get segmented time difference value of all the data keys for the primary key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @param years			Switch to turn on/off the years segment. Off by default. (`false` is used if no argument is supplied).
@@ -1283,7 +1283,7 @@ export method pkTimestampChange(data3d this, string primaryKey, bool years=false
 	d2d = this.data.get(pkIdx)
 	__getTimestampChangeF(d2d, years, months, weeks, days, hours, minutes, seconds)
 
-// @function    		Get segmented time difference value of all the primary keys for The data key. (main == alt)
+// @function    		Get segmented time difference value of all the primary keys for the data key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @param years			Switch to turn on/off the years segment. Off by default. (`false` is used if no argument is supplied).
@@ -1329,7 +1329,7 @@ export method et(data3d this, string primaryKey, string dataKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, dkIdx, 'et')
 
-// @function    		Get 'et' comparison of all the data keys for The primary key. (main == alt)
+// @function    		Get 'et' comparison of all the data keys for the primary key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1339,7 +1339,7 @@ export method pkEt(data3d this, string primaryKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, 'et')
 
-// @function    		Get 'et' comparison of all the primary keys for The data key. (main == alt)
+// @function    		Get 'et' comparison of all the primary keys for the data key. (main == alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1378,7 +1378,7 @@ export method lte(data3d this, string primaryKey, string dataKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, dkIdx, 'lte')
 
-// @function    		Get 'lte' comparison of all the data keys for The primary key. (orginal <= alt)
+// @function    		Get 'lte' comparison of all the data keys for the primary key. (orginal <= alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1388,7 +1388,7 @@ export method pkLte(data3d this, string primaryKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, 'lte')
 
-// @function    		Get 'lte' comparison of all the primary keys for The data key. (orginal <= alt)
+// @function    		Get 'lte' comparison of all the primary keys for the data key. (orginal <= alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1427,7 +1427,7 @@ export method lt(data3d this, string primaryKey, string dataKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, dkIdx, 'lt')
 
-// @function    		Get 'lt' comparison of all the data keys for The primary key. (orginal < alt)
+// @function    		Get 'lt' comparison of all the data keys for the primary key. (orginal < alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1437,7 +1437,7 @@ export method pkLt(data3d this, string primaryKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, 'lt')
 
-// @function    		Get 'lt' comparison of all the primary keys for The data key. (orginal < alt)
+// @function    		Get 'lt' comparison of all the primary keys for the data key. (orginal < alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1476,7 +1476,7 @@ export method gte(data3d this, string primaryKey, string dataKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, dkIdx, 'gte')
 
-// @function    		Get 'gte' comparison of all the data keys for The primary key. (orginal >= alt)
+// @function    		Get 'gte' comparison of all the data keys for the primary key. (orginal >= alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1486,7 +1486,7 @@ export method pkGte(data3d this, string primaryKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, 'gte')
 
-// @function    		Get 'gte' comparison of all the primary keys for The data key. (orginal >= alt)
+// @function    		Get 'gte' comparison of all the primary keys for the data key. (orginal >= alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1525,7 +1525,7 @@ export method gt(data3d this, string primaryKey, string dataKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, dkIdx, 'gt')
 
-// @function    		Get 'gt' comparison of all the data keys for The primary key. (orginal > alt)
+// @function    		Get 'gt' comparison of all the data keys for the primary key. (orginal > alt)
 // @param this			(data3d) The `data3d` object.
 // @param primaryKey	(string) The primary key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1535,7 +1535,7 @@ export method pkGt(data3d this, string primaryKey) =>
 	d2d = this.data.get(pkIdx)
 	__comparison(d2d, 'gt')
 
-// @function    		Get 'gt' comparison of all the primary keys for The data key. (orginal > alt)
+// @function    		Get 'gt' comparison of all the primary keys for the data key. (orginal > alt)
 // @param this			(data3d) The `data3d` object.
 // @param dataKey		(string) The data key.
 // @returns  			(array<bool>) An array of boolean values.
@@ -1815,7 +1815,7 @@ __init2d(data2d this, bool sort=false, bool asc=true, bool change=na) =>
 // @param kvs		(array<kv> ) An array of `kv` objects.
 // @param sort		(bool) Use true for sorting, false otherwise. (`false` is used if no argument is supplied).
 // @param asc		(bool) Use true for sort order.ascending, false for sort order.descending. (`true` is used if no argument is supplied).
-// @param change	(bool) Sorts using change percent if true. (`false` is used if no argument is supplied).
+// @param change	(bool) Sorts using change percent if true. (`na` is used if no argument is supplied).
 // @param format	(string) The default format. (`na` is used if no argument is supplied).
 // @param timezone	(string) The default timezone. (`syminfo.timezone` is used if no argument is supplied).
 // @returns  		(data2d) The `data2d` object.
@@ -2685,6 +2685,113 @@ export method pkRemove(data3d this, string primaryKey) =>
 
 // }
 
+// { Printer Extend:
+
+__getOriginalTheme(tools._printer printer) =>
+	switch printer.tableStyle.bgColor
+		#0000004D => 'gray'
+		#0000780D => 'blue'
+		#0078000D => 'green'
+		#E146000D => 'orange'
+		#FF00FF0D => 'pink'
+		#9B00FF0D => 'purple'
+		#7800000D => 'red'
+		#C8C8C80D => 'white'
+		#AFAF000D => 'yellow'
+
+__theme(string theme = na) =>
+	bgCl  = #1E28324D	// _color("gray_medium", 70)
+	txtCl = #E1E1E1	// _color("white_bright")
+	switch theme
+		'blue' =>
+			bgCl  := #0078FF4D // _color("aqua_dark", 70)
+			txtCl := #E1E1E1	// _color("white_bright")
+		'green' =>
+			bgCl  := #00C80099 // _color("green_light", 40)
+			txtCl := #000000   // _color("black_dark")
+		'orange' =>
+			bgCl  := #E1460099 // _color("orange_dark", 40)
+			txtCl := #000000	// _color("black_dark")
+		'pink' =>
+			bgCl  := #FF64FF99 // _color("pink_light",40)
+			txtCl := #000000	// _color("black_dark")
+		'purple' =>
+			bgCl  := #9664FF99 // _color("purple_light", 40)
+			txtCl := #E1E1E1	// _color("white_bright")
+		'red' =>
+			bgCl  := #C8000099 // _color("red_light", 40)
+			txtCl := #E1E1E1	// _color("white_bright")
+		'white' =>
+			bgCl  := #C8C8C899 // _color("white_dark", 40)
+			txtCl := #000000	// _color("black_dark")
+		'yellow' =>
+			bgCl  := #E6E60099 // _color("yellow_light", 40)
+			txtCl := #000000	// _color("black_dark")
+
+	[bgCl, txtCl]
+
+_gradientValues(tools._gradient gradient, data2d val) =>
+	array<float> gradientValues = na
+	if not na(gradient) and (val.dataType == 'float' or val.dataType == 'int' or val.dataType == 'timestamp')
+		if val.change
+			gradientValues := val.change(true)
+		else
+			switch val.dataType
+				'float' => 
+					gradientValues := val.floatValues()
+				'int' => 
+					gradientValues := val.intValues()
+				'timestamp' => 
+					gradientValues := val.timestampValues()
+	gradientValues
+
+_gradientValues(tools._gradient gradient, data3d val, string primaryKey) =>
+	array<float> gradientValues = na
+	if not na(gradient) and (val.dataType == 'float' or val.dataType == 'int' or val.dataType == 'timestamp')
+		if val.change
+			gradientValues := val.pkChange(primaryKey, true)
+		else
+			switch val.dataType
+				'float' => 
+					gradientValues := val.pkFloatValues(primaryKey)
+				'int' => 
+					gradientValues := val.pkIntValues(primaryKey)
+				'timestamp' => 
+					gradientValues := val.pkTimestampValues(primaryKey)
+	gradientValues
+
+// @function            Print data on screen.
+// @param this          (_printer) A tools._printer object. 
+// @param val           Data to print on screen.
+// @param gradientVal   OPTIONAL: Float value(s) for generating gradient color. Possible types: array<float>, matrix<float>. (`na` is used if no argument is supplied).
+// @param title         (string) A title for the value. (`na` is used if no argument is supplied). 
+// @param titleStyle    (titleStyle) Add a custom `titleStyle` for this print only. (`na` is used if no argument is supplied). 
+// @param cellStyle     (cellStyle) Add a custom `cellStyle` for this print only. (`na` is used if no argument is supplied).
+// @param theme         (string) The name of the theme. Choices: gray, blue, green, orange, green, red, purple, pink and white. (`na` is used if no argument is supplied).
+// @param gradient      (_gradient) A `_gradient` object. (`na` is used if no argument is supplied).
+// @returns             (_printer) Returns the _printer UDT object.
+export method print(tools._printer printer, data2d val, bool alt = false, string title=na, tools.titleStyle titleStyle=na, tools.cellStyle cellStyle=na, tools.cellStyle keyCellStyle=na, string theme=na, tools._gradient gradient=na, bool gradientKey=false) =>
+    toolsKvs = tools.kvs.new(keys = val.keys(), values = val.values(alt), gradientValues = _gradientValues(gradient, val))
+	_theme = na(theme) ? __getOriginalTheme(printer) : theme
+	[bgCl, txtCl] = __theme(_theme)
+	kcs = na(keyCellStyle) ? tools.cellStyle.new(textHalign=text.align_center, textColor=txtCl, bgColor=bgCl) : keyCellStyle
+	printer.print2d(toolsKvs, title, titleStyle, cellStyle, kcs, theme, gradient, gradientKey)
+
+export method print(tools._printer printer, data3d val, bool alt = false, string title=na, tools.titleStyle titleStyle=na, tools.cellStyle cellStyle=na, tools.cellStyle pkCellStyle=na, tools.cellStyle dkCellStyle=na, string theme=na, tools._gradient gradient=na, bool gradientKey=false) =>
+    kvsArr = array.new<tools.kvs>()
+	primaryKeys = val.primaryKeys()
+	dataKeys = val.dataKeys
+	for pk in primaryKeys
+		kvsArr.push(tools.kvs.new(keys = dataKeys, values = val.pkValues(pk, alt), gradientValues = _gradientValues(gradient, val, pk)))
+	toolsPkvs = tools.pkvs.new(primaryKeys = primaryKeys, kvs = kvsArr)
+	_theme = na(theme) ? __getOriginalTheme(printer) : theme
+	[bgCl, txtCl] = __theme(_theme)
+	pkcs = na(pkCellStyle) ? tools.cellStyle.new(textHalign=text.align_center, textColor=txtCl, bgColor=bgCl) : pkCellStyle
+	dkcs = na(dkCellStyle) ? tools.cellStyle.new(textHalign=text.align_center, textColor=txtCl, bgColor=bgCl) : dkCellStyle
+	printer.print3d(toolsPkvs, title, titleStyle, cellStyle, pkcs, dkcs, theme, gradient, val.sortByKey, gradientKey)
+
+// }
+
 var d2d = array.from(
   '- Key-Value data structure: key -> [ main-value | alternate-value ].',
   '- Ability to store multiple data types.',
@@ -2693,18 +2800,22 @@ var d2d = array.from(
   '- Efforlessly store, retrieve and display Unix timestamps.',
   '- Automaticaly format stored data.',
   '- Sort all data types.',
-  '- Familiar array functions for intuitive data manipulation.')
+  '- Familiar array functions for intuitive data manipulation.',
+  '- You can now print a data2d object directly, using the `tools` print() method.')
 
 var d3d = array.from(
   '- A nested data structure: primary key -> data key -> [ main-value | alternate-value ].',
-  '- Sorting based on The data key.',
-  '- Plus, all the similar features of this.')
+  '- Sorting based on a data key.',
+  '- Plus, shares most features of data2d.',
+  '- Similar to data2d, you can print data3d objects using the `tools` print() method.')
 
 if barstate.islast
-	hs = tools.headerStyle.new(textSize=size.large)
-    fs = tools.footerStyle.new(textSize=size.large, textHalign=text.align_right)
-    ts = tools.titleStyle.new(top=true, textHalign=text.align_left, textValign=text.align_top, textSize=size.large)
-    cs = tools.cellStyle.new(textHalign=text.align_left, textSize=size.normal)
-	printer = tools._printer.new(loc=position.middle_center).header("Multidimensional Array Data Structures.", hs).footer("Full Documentation: https://faiyaz7283.github.io/multidata", fs).title(titleStyle=ts).cell(cellStyle=cs).gutter(true).stack(true).theme("orange")
+	tbs = tools.tableStyle.new(borderWidth=3)
+	hs = tools.headerStyle.new(textSize=size.large, textColor=tools._color('purple_bright'))
+    fs = tools.footerStyle.new(textSize=size.large, textHalign=text.align_right, textColor=tools._color('green_bright'))
+    ts = tools.titleStyle.new(top=true, textHalign=text.align_left, textValign=text.align_top, textSize=size.normal, textColor=tools._color('yellow_bright'))
+    cs = tools.cellStyle.new(horizontal=false, textHalign=text.align_left, textSize=size.normal, textColor=tools._color('white_bright'))
+	printer = tools._printer.new(tableStyle=tbs, loc=position.middle_center).header("Multidimensional Array Data Structures.", hs).footer("Full Documentation: https://faiyaz7283.github.io/multidata", fs).title(titleStyle=ts).cell(cellStyle=cs).gutter(true).stack(true)
+	
 	printer.print(d2d, title = "Data2d")
 	printer.print(d3d, title = "Data3d")

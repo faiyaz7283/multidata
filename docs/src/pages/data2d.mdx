@@ -59,43 +59,43 @@ precedence over the global format set on the [`data2d`](/_data2d) object.
 <CodeGroup title="Creating kv objects">
 
 ```js {{ title: 'Simple' }}
-_open  = 'open'.kv(open)
-_high  = 'high'.kv(high)
-_low   = 'low'.kv(low)
-_close = 'close'.kv(close)
+_open  = kv(this = 'open', val = open)
+_high  = kv(this = 'high', val = high)
+_low   = kv(this = 'low', val = low)
+_close = kv(this = 'close', val = close)
 
 ```
 
 ```js {{ title: 'Alternate' }}
 // Using the altVal parameter.
-_open  = 'open'.kv(val = open,   altVal = open[1])
-_high  = 'high'.kv(val = high,   altVal = high[1])
-_low   = 'low'.kv(val = low,     altVal = low[1])
-_close = 'close'.kv(val = close, altVal = close[1])
+_open  = kv(this = 'open', val = open, altVal = open[1])
+_high  = kv(this = 'high', val = high, altVal = high[1])
+_low   = kv(this = 'low', val = low, altVal = low[1])
+_close = kv(this = 'close', val = close, altVal = close[1])
 
 // or
 
 // Using the alt() method. You can chain them for convenience.
-_open  = 'open'.kv(open).alt(open[1])
-_high  = 'high'.kv(high).alt(high[1])
-_low   = 'low'.kv(low).alt(low[1])
-_close = 'close'.kv(close).alt(close[1])
+_open  = kv(this = 'open', val = open).alt(open[1])
+_high  = kv(this = 'high', val = high).alt(high[1])
+_low   = kv(this = 'low', val = low).alt(low[1])
+_close = kv(this = 'close', val = close).alt(close[1])
 ```
 
 ```js {{ title: 'Format' }}
 // Using the format parameter.
-_open  = 'open'.kv(val = open,   foramt = 'Open: {0,number,currency}')
-_high  = 'high'.kv(val = high,   foramt = 'High: {0,number,currency}')
-_low   = 'low'.kv(val = low,     foramt = 'Low: {0,number,currency}')
-_close = 'close'.kv(val = close, foramt = 'Close: {0,number,currency}')
+_open  = kv(this = 'open', val = open, format = 'Open: {0,number,currency}')
+_high  = kv(this = 'high', val = high, format = 'High: {0,number,currency}')
+_low   = kv(this = 'low', val = low, format = 'Low: {0,number,currency}')
+_close = kv(this = 'close', val = close, format = 'Close: {0,number,currency}')
 
 // or
 
 // Using the format() method. You can chain them for convenience.
-_open  = 'open'.kv(open).format("Open: {0,number,currency}")
-_high  = 'high'.kv(high).forma("High: {0,number,currency}")
-_low   = 'low'.kv(low).format("Low: {0,number,currency}")
-_close = 'close'.kv(close).format("Close: {0,number,currency}")
+_open  = kv(this = 'open', val = open).format("Open: {0,number,currency}")
+_high  = kv(this = 'high', val = high).forma("High: {0,number,currency}")
+_low   = kv(this = 'low', val = low).format("Low: {0,number,currency}")
+_close = kv(this = 'close', val = close).format("Close: {0,number,currency}")
 ```
 
 </CodeGroup>
@@ -126,29 +126,30 @@ Let's explore some examples and variations that demonstrate working with multipl
 <CodeGroup title="Multiple data type examples">
 
 ```js {{ title: 'String' }}
-string1 = 'string1'.kv('Apple').alt('aapl')
+string1 = kv('string1', 'Apple').alt('aapl')
 ```
 
 ```js {{ title: 'Float' }}
-float1 = 'float1'.kv(48.981).alt(125.09)
+float1 = kv('float1', 48.981).alt(125.09)
 ```
 
 ```js {{ title: 'Integer' }}
-int1 = 'int1'.kv(35).alt(46)
+int1 = kv('int1', 35).alt(46)
 ```
 
 ```js {{ title: 'Boolean' }}
-bool1 = 'bool1'.kv(true).alt(false)
+bool1 = kv('bool1', true).alt(false)
 ```
 
 ```js {{ title: 'Color' }}
-color1 = 'color1'.kv(#FF0000).alt(#FF1D25)
+color1 = kv('color1', #FF0000).alt(#FF1D25)
 ```
 
 ```js {{ title: 'Timestamp' }}
 // REQUIRED: `timestamp = true`.
 // If you don't use the timestamp parameter, data2d will assume its an integer value.
-time1 = 'time1'.kv(
+time1 = kv(
+  this = 'time1',
   val = 1695618954000,
   altVal = 1192002131000,
   timestamp = true,
@@ -158,12 +159,12 @@ time1 = 'time1'.kv(
 
 ```js {{ title: 'Mixed types' }}
 // Combine any number of data types.
-string1 = 'string1'.kv('Apple').alt('aapl')
-float1  = 'float1'.kv(48.981).alt(125.09)
-int1    = 'int1'.kv(35).alt(46)
-bool1   = 'bool1'.kv(true).alt(false)
-color1  = 'color1'.kv(#FF0000).alt(#FF1D25)
-time1   = 'time1'.kv(1695618954000, timestamp = true).alt(1192002131000)
+string1 = kv('string1', 'Apple').alt('aapl')
+float1  = kv('float1', 48.981).alt(125.09)
+int1    = kv('int1', 35).alt(46)
+bool1   = kv('bool1', true).alt(false)
+color1  = kv('color1', #FF0000).alt(#FF1D25)
+time1   = kv('time1', 1695618954000, timestamp = true).alt(1192002131000)
 ```
 
 </CodeGroup>
@@ -477,3 +478,19 @@ d2d.timestampChange( // .... Returns a string with time segments for single key.
 ```
 
 </CodeGroup>
+
+## Print
+
+You can now easily print any [`data2d`](/_data2d) object, directly on your chart, using the `print()` method from the 
+[`tools`](https://faiyaz7283.github.io/tools) library. 
+
+```js {{ title: 'Print' }}
+// Replace the N with latest version number.
+// import faiyaz7283/tools/N as tools
+
+if barstate.islast
+  printer = tools._printer.new()
+
+  // Pass any data2d object.
+  printer.print(d2d_obj) // Displays the objects keys and values.
+```
